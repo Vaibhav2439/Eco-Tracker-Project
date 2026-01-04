@@ -1,0 +1,311 @@
+/* RESPONSIVE DESIGN - ADDED AT END OF style.css */
+
+/* ===== TABLET DEVICES (768px and below) ===== */
+@media (max-width: 768px) {
+  .header-inner {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .nav {
+    flex: 1;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .nav a, .nav button {
+    margin: 0 4px;
+    font-size: 13px;
+  }
+  
+  .hero h1 {
+    font-size: 48px;
+    line-height: 1.1;
+  }
+  
+  .hero .lead {
+    font-size: 15px;
+    margin: 0 0 24px;
+  }
+  
+  .btn.cta {
+    padding: 10px 20px;
+    font-size: 16px;
+  }
+  
+  .section {
+    padding: 60px 0;
+  }
+  
+  .section-title {
+    font-size: 32px;
+  }
+  
+  .apart-grid, .choose-grid, .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .feature-card {
+    padding: 20px;
+  }
+  
+  .carbon-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .contact-form {
+    max-width: 100%;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    padding: 10px;
+    font-size: 14px;
+  }
+}
+
+/* ===== MOBILE PHONES (480px and below) ===== */
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+  
+  .container {
+    padding: 0 12px;
+    max-width: 100%;
+  }
+  
+  .site-header {
+    padding: 12px 0;
+  }
+  
+  .header-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .logo {
+    font-size: 18px;
+    text-align: center;
+  }
+  
+  .nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+  
+  .nav a, .nav button, .nav .btn {
+    margin: 0;
+    padding: 6px 10px;
+    font-size: 12px;
+    flex: 0 0 auto;
+  }
+  
+  .nav .btn.small {
+    padding: 5px 8px;
+  }
+  
+  /* Hero Section Mobile */
+  .hero {
+    padding: 40px 0;
+  }
+  
+  .hero-inner {
+    padding: 40px 0;
+  }
+  
+  .hero h1 {
+    font-size: 28px;
+    line-height: 1.2;
+    margin: 0 0 12px;
+  }
+  
+  .hero .accent {
+    display: inline;
+  }
+  
+  .hero .lead {
+    font-size: 13px;
+    margin: 0 0 16px;
+    line-height: 1.4;
+  }
+  
+  .btn.cta {
+    padding: 8px 16px;
+    font-size: 14px;
+    display: inline-block;
+  }
+  
+  .hero-icons {
+    gap: 8px;
+    margin-top: 20px;
+  }
+  
+  .hero-icons i {
+    font-size: 20px;
+  }
+  
+  /* Section Mobile */
+  .section {
+    padding: 40px 0;
+  }
+  
+  .section-title {
+    font-size: 24px;
+    margin: 0 0 12px;
+  }
+  
+  .section-subtitle {
+    font-size: 13px;
+    margin: 0 0 20px;
+  }
+  
+  /* Grid Mobile */
+  .apart-grid, .choose-grid, .actions-grid, .features-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .apart-card, .choose-card, .action-card, .feature-card {
+    padding: 16px;
+  }
+  
+  .apart-card h4, .choose-card h4, .action-card h4 {
+    font-size: 15px;
+  }
+  
+  .apart-card p, .choose-card p, .action-card p {
+    font-size: 12px;
+  }
+  
+  .icon-circle {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+  
+  /* Carbon Grid Mobile */
+  .carbon-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .carbon-card {
+    padding: 16px;
+  }
+  
+  .carbon-heading {
+    font-size: 15px;
+  }
+  
+  .carbon-list li {
+    font-size: 12px;
+    padding: 6px 0;
+  }
+  
+  /* FAQ Mobile */
+  .faq-card {
+    padding: 16px;
+  }
+  
+  .faq-card h4 {
+    font-size: 14px;
+  }
+  
+  .faq-card p {
+    font-size: 12px;
+  }
+  
+  /* Contact Form Mobile */
+  .narrow {
+    max-width: 100%;
+  }
+  
+  .contact-form {
+    gap: 12px;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    padding: 8px;
+    font-size: 13px;
+  }
+  
+  .form-group input::placeholder,
+  .form-group textarea::placeholder {
+    font-size: 12px;
+  }
+  
+  .btn.primary {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  
+  .error-message {
+    font-size: 11px;
+  }
+  
+  /* Footer Mobile */
+  .site-footer {
+    padding: 20px 0;
+    font-size: 12px;
+  }
+  
+  .footer-inner {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+  
+  /* Auth Page Mobile */
+  .auth-card {
+    width: 95%;
+    padding: 20px;
+    margin-top: 60px;
+  }
+  
+  .welcome {
+    font-size: 22px;
+  }
+  
+  .brand {
+    font-size: 28px;
+  }
+  
+  .subtitle {
+    font-size: 12px;
+  }
+  
+  .input-row {
+    padding: 10px;
+  }
+  
+  .btn {
+    padding: 10px;
+    font-size: 13px;
+  }
+}
+
+/* ===== EXTRA SMALL (320px and below) ===== */
+@media (max-width: 320px) {
+  .hero h1 {
+    font-size: 22px;
+  }
+  
+  .container {
+    padding: 0 8px;
+  }
+  
+  .nav a, .nav button {
+    padding: 4px 6px;
+    font-size: 10px;
+  }
+  
+  .btn.small {
+    padding: 4px 6px;
+    font-size: 10px;
+  }
+}

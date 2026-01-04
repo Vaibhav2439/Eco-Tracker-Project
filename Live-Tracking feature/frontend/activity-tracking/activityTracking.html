@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Activity Tracking — EcoTrack</title>
+
+  <!-- External CSS -->
+  <link rel="stylesheet" href="/activity-tracking/activityTracking.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- socket.io client (optional) -->
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+  
+  <!-- TOP NAV (custom for activity page) -->
+  <div id="global-nav" class="nav-elevated">
+    <div class="brand">Eco <span class="brand-accent">Tracker</span></div>
+    <div class="header-right">
+      <div id="live-indicator" class="live disconnected"><span class="dot"></span> Offline</div>
+    </div>
+  </div>
+
+  <!-- LEFT SIDEBAR (fixed) -->
+  <aside id="app-sidebar" class="sidebar card">
+    <div class="sidebar-brand">EcoTrack</div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Activity Tracking</div>
+      <nav class="sidebar-nav" aria-label="Main navigation">
+        <a href="#" class="sidebar-link"><span class="side-ico">🏠</span><span class="side-label">Dashboard</span></a>
+        <a href="#" class="sidebar-link"><span class="side-ico">👥</span><span class="side-label">Community Hub</span></a>
+        <a href="/activity-tracking" class="sidebar-link active" aria-current="page"><span class="side-ico">🍃</span><span class="side-label">Activity Tracking</span></a>
+        <a href="#" class="sidebar-link"><span class="side-ico">⚙️</span><span class="side-label">Settings</span></a>
+      </nav>
+    </div>
+    <div class="sidebar-footer muted">v1.0 • EcoTrack</div>
+  </aside>
+
+  <!-- MAIN PAGE -->
+  <div class="page-wrap">
+    <div class="content">
+      <main class="main-col">
+
+        <!-- ECO SCORE (faint overlay) -->
+        <div class="card card-ecoscore faint-card compact">
+          <div class="eco-gauge">
+            <svg class="gauge-svg" viewBox="0 0 100 100" aria-hidden="true">
+              <defs>
+                <linearGradient id="g" x1="1" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#18ff9c"/>
+                  <stop offset="100%" stop-color="#12d6ff"/>
+                </linearGradient>
+                <linearGradient id="glow" x1="0" x2="1">
+                  <stop offset="0%" stop-color="rgba(24,255,156,0.16)"/>
+                  <stop offset="1" stop-color="rgba(18,214,255,0.14)"/>
+                </linearGradient>
+              </defs>
+              <circle class="gauge-bg" cx="50" cy="50" r="40"></circle>
+              <path id="gauge-arc" class="gauge-arc" d="M 10 50 A 40 40 0 0 1 90 50" stroke="url(#g)" stroke-linecap="round"></path>
+              <text id="ecoPercent" class="gauge-text" x="50" y="55" text-anchor="middle">81%</text>
+            </svg>
+          </div>
+
+          <div class="eco-body compact-body">
+            <h3>Your Eco Score</h3>
+            <div class="muted">Overview of your weekly impact</div>
+            <div class="eco-actions" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <!-- CHART (faint overlay) -->
+        <div class="card card-graph faint-card">
+          <div class="card-title">Daily Carbon Footprint</div>
+          <div class="chart-wrap">
+            <div class="y-axis-label">kg CO₂</div>
+            <canvas id="footprintChart" height="360"></canvas>
+          </div>
+        </div>
+
+        <!-- CATEGORIES (faint overlay) -->
+        <div class="card card-categories faint-card">
+          <div class="card-title">Quick Categories</div>
+          <div class="cats" role="list">
+            <div class="cat" tabindex="0" role="button" aria-label="Recycling">
+              <div class="cat-emoji">♻️</div>
+              <div class="cat-title">Recycling</div>
+              <div id="sub-Recycling" class="cat-sub">No activity yet</div>
+              <button class="logbtn log-btn-green" data-type="Recycling">Log</button>
+            </div>
+
+            <div class="cat" tabindex="0" role="button" aria-label="Commute">
+              <div class="cat-emoji">🚗</div>
+              <div class="cat-title">Commute</div>
+              <div id="sub-Commute" class="cat-sub">No activity yet</div>
+              <button class="logbtn log-btn-green" data-type="Commute">Log</button>
+            </div>
+
+            <div class="cat" tabindex="0" role="button" aria-label="Energy">
+              <div class="cat-emoji">💡</div>
+              <div class="cat-title">Energy</div>
+              <div id="sub-Energy-Usage" class="cat-sub">No activity yet</div>
+              <button class="logbtn log-btn-green" data-type="Energy Usage">Log</button>
+            </div>
+
+            <div class="cat" tabindex="0" role="button" aria-label="Water">
+              <div class="cat-emoji">🚰</div>
+              <div class="cat-title">Water</div>
+              <div id="sub-Water-Consumption" class="cat-sub">No activity yet</div>
+              <button class="logbtn log-btn-green" data-type="Water Consumption">Log</button>
+            </div>
+
+            <div class="cat" tabindex="0" role="button" aria-label="Waste">
+              <div class="cat-emoji">🗑️</div>
+              <div class="cat-title">Waste</div>
+              <div id="sub-Waste-Reduction" class="cat-sub">No activity yet</div>
+              <button class="logbtn log-btn-green" data-type="Waste Reduction">Log</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- GOALS (kept below) -->
+        <div class="card card-goal">
+          <div class="card-title">Set a New Goal</div>
+          <div class="goal-row">
+            <input id="goalText" placeholder="Goal (e.g. Plant trees 10)" />
+            <input id="goalTarget" placeholder="Target (e.g. 10)" inputmode="numeric" />
+            <button id="addGoalBtn" class="btn strong log-btn-green">Add Goal</button>
+          </div>
+        </div>
+
+        <div class="card card-active-goals">
+          <div class="card-title">Active Goals</div>
+          <div id="activeGoalsList" class="active-goals">
+            <!-- JS will populate active goals -->
+          </div>
+        </div>
+
+        <!-- LEADERBOARD -->
+        <div class="card card-leader pdf-leader">
+          <div class="card-title">
+            <span class="leader-icon">🏆</span>
+            Leaderboard
+          </div>
+
+          <ul id="leaderboard" class="leaderboard-list pdf-leader-list" aria-live="polite">
+            <!-- JS will render leaderboard items here (auto-highlights "You") -->
+          </ul>
+
+          <div class="leader-footer muted" style="margin-top:12px;font-size:13px">Top contributors this week</div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal: single combined control (value + dropdown unit) -->
+  <div id="logModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalTitle"></h3>
+        <button id="modalClose" class="modal-close" aria-label="Close">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <label class="combined-control">
+          <input id="activityValue" type="number" placeholder="Enter value" />
+          <select id="activityUnit" class="styled-select"></select>
+        </label>
+
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button id="submitActivity" class="btn strong log-btn-green">Save</button>
+          <button id="cancelActivity" class="btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden">Saved</div>
+
+  <!-- App JS -->
+  <script src="/activity-tracking/activityTracking.js"></script>
+
+  <!-- small enhancement: animate gauge arc on DOM ready -->
+  <script>
+    document.addEventListener('DOMContentLoaded', ()=> {
+      const arc = document.getElementById('gauge-arc');
+      if(arc){
+        arc.style.strokeDasharray = '120 200';
+        setTimeout(()=> arc.style.strokeDasharray = '220 200', 500);
+      }
+    });
+  </script>
+</body>
+</html>
