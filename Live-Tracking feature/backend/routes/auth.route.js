@@ -11,7 +11,7 @@ router.post(
   [
     body('name').notEmpty().withMessage('Name is required'),
     body('email').isEmail().withMessage('Valid email required'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
     .matches(/[a-z]/)
     .withMessage('Password must contain at least one lowewrcase letter')
     .matches(/[A-Z]/)
