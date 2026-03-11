@@ -1,10 +1,26 @@
 const mongoose = require('mongoose');
 
 const EmailSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-  password: { type: String, required: true },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  createdAt: { type: Date, default: Date.now }
+  email: { 
+    type: String, 
+    required: true, 
+    unique: true, 
+    lowercase: true, 
+    trim: true 
+  },
+  password: { 
+    type: String, 
+    required: false // Allows Google users without password
+  },
+  userId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
+  },
+  createdAt: { 
+    type: Date, 
+    default: Date.now 
+  }
 });
 
 // Ensure email index

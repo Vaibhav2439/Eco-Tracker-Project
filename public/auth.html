@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>EcoTrack — Login</title>
   <link rel="stylesheet" href="/css/auth.css">
+  <!-- Add Font Awesome for Google icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
   <div class="auth-page">
@@ -12,8 +14,8 @@
       <div class="nav-links">
         <a href="/">Home</a>
         <a href="/feature">Features</a>
-        <a href="#">How It Works</a>
-        <a href="#">About</a>
+        <a href="/work.html" class="nav-link">How It Works</a>
+        <a href="/AboutUs.html">About</a>
       </div>
     </nav>
 
@@ -42,7 +44,11 @@
 
         <div class="divider"><span>Or continue with</span></div>
 
-        <button type="button" class="btn google">G Google</button>
+        <!-- Updated Google Button with proper styling and icon -->
+        <button type="button" id="googleLogin" class="btn google">
+          <i class="fa-brands fa-google"></i>
+          Continue with Google
+        </button>
 
         <div class="signup">Don't have an account? <a href="#" id="showRegister">Sign up</a></div>
       </form>

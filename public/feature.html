@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EcoTrack – Core Features</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="feature.css">
+  <style>
+    /* Additional fixes for 4-card layout */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr) !important; /* Force 2 columns */
+      gap: 30px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    @media (max-width: 768px) {
+      .features-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+    
+    /* Card height consistency */
+    .feature-card {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 36px 28px 40px;
+    }
+    
+    .feature-card p {
+      flex-grow: 1;
+      margin-bottom: 22px;
+    }
+    
+    /* Center the grid on page */
+    .features-container {
+      max-width: 1000px;
+      margin: auto;
+    }
+    
+    /* Make all cards same height */
+    .feature-card {
+      min-height: 320px;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="logo">🍃 EcoTrack</div>
+      <nav class="nav">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/feature" class="nav-link">Features</a>
+        <a href="/work.html" class="nav-link">How It Works</a>
+        <a href="/AboutUs.html" class="nav-link">About</a>
+        <a href="/contact.html" class="nav-link">Contact</a>
+        
+        
+        <!-- Auth buttons will be dynamically updated by main.js -->
+        <div id="authNavButtons" class="auth-nav-buttons"></div>
+      </nav>
+    </div>
+  </header>
+
+  <section class="features-section">
+    <div class="features-container">
+
+      <h2 class="section-title">Core Features</h2>
+      <p class="section-subtitle">
+        Everything you need to kickstart your eco-journey with EcoTrack.
+      </p>
+
+      <div class="features-grid">
+
+        <!-- Card 1 - Activity Tracking -->
+        <div class="feature-card">
+          <div class="icon-circle">
+            <i class="fa-solid fa-leaf"></i>
+          </div>
+          <h3>Activity Tracking</h3>
+          <p>
+            Log your daily eco-friendly actions—walking, recycling, or
+            reducing energy use—and see your impact grow in real-time.
+          </p>
+          <a href="/activity-tracking" class="feature-link">Explore Feature →</a>
+        </div>
+
+        <!-- Card 2 - Carbon Footprint Calculator -->
+        <div class="feature-card">
+          <div class="icon-circle">
+            <i class="fa-solid fa-calculator"></i>
+          </div>
+          <h3>Carbon Footprint Calculator</h3>
+          <p>
+            Measure your carbon emissions with our AI-powered tool
+            and get personalized tips to reduce your environmental impact.
+          </p>
+          <a href="/carbon-calculator" class="feature-link">Explore Feature →</a>
+        </div>
+
+        <!-- Card 3 - Gamified Challenges -->
+        <div class="feature-card">
+          <div class="icon-circle">
+            <i class="fa-solid fa-trophy"></i>
+          </div>
+          <h3>Quiz Challenge</h3>
+          <p>
+            Take on daily quiz-challenges, earn points, and compete
+            on the leaderboard to become an eco-champion in your community.
+          </p>
+          <a href="/GM.html" class="feature-link">Explore Feature →</a>
+        </div>
+
+        <!-- Card 4 - 3D Earth View (renamed for better UI) -->
+        <div class="feature-card">
+          <div class="icon-circle">
+            <i class="fa-solid fa-earth-asia"></i>
+          </div>
+          <h3>3D Earth Impact Map</h3>
+          <p>
+            Explore our interactive heatmap showcasing eco-friendly habits
+            adopted across different regions around the globe.
+          </p>
+          <a href="/3dearth" class="feature-link">Explore Feature →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

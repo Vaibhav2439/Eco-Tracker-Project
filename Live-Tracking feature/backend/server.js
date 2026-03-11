@@ -1,5 +1,6 @@
-// server.js
+// =================== ENV & IMPORTS ===================
 require('dotenv').config();
+
 const path = require('path');
 const express = require('express');
 const http = require('http');
@@ -7,37 +8,54 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const { Server } = require('socket.io');
 const nodemailer = require('nodemailer');
+const session = require('express-session');
+const passport = require('../config/passport');
+const config = require('./config');
 
-const config = require('./config'); // optional - see config.js above
-
+// =================== MODELS ===================
 let Activity = null;
 let User = null;
 let Message = null;
+
 try { Activity = require('./models/Activity.model'); } catch (e) { Activity = null; }
 try { User = require('./models/User.model'); } catch (e) { User = null; }
-try {
-  Message = require('../../models/Message');
-  console.log('Message model loaded (root models/Message.js)');
-} catch (e) {
-  Message = null;
-}
+try { Message = require('./models/Message'); } catch (e) { Message = null; }
 
+// =================== APP & SOCKET ===================
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: '*', methods: ['GET','POST'] } });
+const io = new Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
 
+// =================== MIDDLEWARE ===================
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// =================== SESSION ===================
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'dev-session-secret-change-me',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000
+  }
+}));
+
+// =================== PASSPORT ===================
+app.use(passport.initialize());
+app.use(passport.session());
+
+// =================== EJS ===================
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, '..', '..', 'views'));
+
+// =================== STATIC FILES ===================
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
-// also serve root public folder (home page + CSS)
 app.use(express.static(path.join(__dirname, '..', '..', 'public')));
 
-// Disable mongoose command buffering so operations fail fast instead of waiting to buffer
-mongoose.set('bufferCommands', false);
-
-// create nodemailer transporter if SMTP vars provided
+// =================== MAILER ===================
 let transporter = null;
 if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
   try {
@@ -50,37 +68,20 @@ if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) 
         pass: process.env.EMAIL_PASS
       }
     });
-
-    transporter
-      .verify()
-      .then(() => console.log('SMTP transporter verified'))
-      .catch(err =>
-        console.warn(
-          'SMTP transporter verify failed:',
-          err && err.message ? err.message : err
-        )
-      );
-  } catch (err) {
-    console.error(
-      'Failed to create transporter:',
-      err && err.message ? err.message : err
-    );
+    console.log('📧 Email transporter created');
+  } catch (e) {
+    console.log('⚠️ Email transporter error:', e.message);
     transporter = null;
   }
 } else {
-  console.log(
-    'SMTP details not provided; emails will not be sent. Fill EMAIL_HOST/EMAIL_USER/EMAIL_PASS in .env to enable.'
-  );
+  console.log('📧 Email not configured (missing credentials)');
 }
 
-// helper to extract a usable router/middleware from a module export
+// =================== SAFE ROUTE LOADER ===================
 function extractRouter(mod) {
   if (!mod) return null;
-  if (typeof mod === 'function') return mod;
-  if (mod.default && typeof mod.default === 'function') return mod.default;
-  if (mod.router && (typeof mod.router === 'function' || (mod.router && typeof mod.router.use === 'function'))) return mod.router;
-  if (mod.route && (typeof mod.route === 'function' || (mod.route && typeof mod.route.use === 'function'))) return mod.route;
-  if (typeof mod === 'object' && (typeof mod.use === 'function' || typeof mod.handle === 'function')) return mod;
+  if (typeof mod === 'function' || (mod.use && typeof mod.use === 'function')) return mod;
+  if (mod.default && (typeof mod.default === 'function' || (mod.default.use && typeof mod.default.use === 'function'))) return mod.default;
   return null;
 }
 
@@ -88,190 +89,330 @@ function tryRegister(modulePath, mountPath, passIo = false) {
   try {
     const mod = require(modulePath);
     const candidate = extractRouter(mod);
+    if (!candidate) throw new Error('No usable router export');
 
-    if (candidate) {
-      if (typeof candidate === 'function') {
-        try {
-          const maybeRouter = passIo ? candidate(io) : candidate();
-          const rtn = extractRouter(maybeRouter) || maybeRouter;
-          if (rtn) {
-            app.use(mountPath, rtn);
-            console.log(`Mounted ${modulePath} => ${mountPath} (factory -> returned router)`);
-            return;
-          }
-          app.use(mountPath, candidate);
-          console.log(`Mounted ${modulePath} => ${mountPath} (function used as router)`);
-          return;
-        } catch (callErr) {
-          app.use(mountPath, candidate);
-          console.log(`Mounted ${modulePath} => ${mountPath} (function used directly)`);
-          return;
-        }
-      }
+    if (typeof candidate === 'function') {
+      const maybeRouter = passIo ? candidate(io) : candidate();
+      app.use(mountPath, maybeRouter || candidate);
+    } else {
       app.use(mountPath, candidate);
-      console.log(`Mounted ${modulePath} => ${mountPath} (object router)`);
-      return;
     }
-
-    const fallback = mod && (mod.default || mod.router || mod.route || mod.app);
-    if (fallback) {
-      const r = extractRouter(fallback) || fallback;
-      if (r) {
-        app.use(mountPath, r);
-        console.log(`Mounted ${modulePath} => ${mountPath} (fallback)`);
-        return;
-      }
-    }
-
-    throw new Error('No usable router found in module export');
+    console.log(`✅ Mounted ${modulePath} → ${mountPath}`);
   } catch (e) {
-    console.error(`Failed to register route ${modulePath} at ${mountPath}:`, e && e.message ? e.message : e);
+    console.log(`⚠️ Failed to mount ${modulePath}:`, e.message);
   }
 }
 
-// DATABASE connect & start server
+// =================== START SERVER ===================
 async function startServer() {
-  // prefer explicit environment variable so user can override config.js
   const PORT = process.env.PORT || (config && config.PORT) || 3000;
 
+  // ===== MongoDB Connection for Atlas =====
   if (config && config.MONGO_URI) {
     try {
-      // better connect options, shorter server selection timeout for faster failure
+      console.log('🔄 Connecting to MongoDB Atlas...');
+      
       await mongoose.connect(config.MONGO_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
-        serverSelectionTimeoutMS: 5000, // fail fast if server unreachable
-        connectTimeoutMS: 10000
+        serverSelectionTimeoutMS: 60000, // Increased timeout to 60 seconds
+        socketTimeoutMS: 60000, // Increased socket timeout to 60 seconds
+        family: 4
       });
-      console.log('MongoDB connected');
+      
+      console.log('✅ Connected to MongoDB Atlas');
+      // Disable Mongoose buffering completely
+// After mongoose.connect(), add this:
+console.log('✅ MongoDB connected');
 
-      try {
-        if (User) {
-          const count = await User.countDocuments().catch(() => 0);
-          if (count === 0) {
-            await User.insertMany([
-              { name: 'Alex', points: 92 },
-              { name: 'Maya', points: 88 },
-              { name: 'Sam', points: 85 },
-              { name: 'You', points: 80 }
-            ]);
-            console.log('Seeded users');
-          }
-        }
-      } catch (e) {
-        console.warn('Seeding users failed:', e && e.message ? e.message : e);
-      }
-    } catch (err) {
-      console.error('MongoDB connection error (continuing without DB):', err && err.message ? err.message : err);
-      // If connection fails, clear models that depend on mongoose to avoid buffered ops.
-      Activity = null;
-      User = null;
+// CRITICAL FIX: Wait for connection to be fully ready
+await new Promise(resolve => setTimeout(resolve, 3000));
+
+// Verify connection works
+try {
+  await mongoose.connection.db.admin().ping();
+  console.log('✅ Database is ready for queries');
+} catch (e) {
+  console.log('⚠️ Database not ready yet, but continuing...');
+}
+      console.log('📊 Database:', mongoose.connection.name);
+      console.log('🌐 Host:', mongoose.connection.host);
+      
+      mongoose.connection.on('error', (err) => {
+        console.error('❌ MongoDB connection error:', err);
+      });
+      
+      mongoose.connection.on('disconnected', () => {
+        console.log('⚠️ MongoDB disconnected');
+      });
+      
+    } catch (error) {
+      console.error('❌ Failed to connect to MongoDB Atlas:', error.message);
+      console.log('\n💡 Troubleshooting tips:');
+      console.log('1. Check if your IP address is whitelisted in Atlas');
+      console.log('2. Verify username and password are correct');
+      console.log('3. Make sure the connection string is exactly correct');
+      console.log('4. Check if you\'re using the right database name\n');
+      process.exit(1);
     }
   } else {
-    console.warn('No MONGO_URI provided in config — running without MongoDB connection');
-    Activity = null;
-    User = null;
+    console.error('❌ MONGO_URI not found in config');
+    process.exit(1);
   }
 
-  // Register routes AFTER trying to connect (so router factories can optionally expect io or DB)
+  // ===== API ROUTES =====
   tryRegister('./routes/activities.route', '/api/activities', true);
   tryRegister('./routes/leaderboard.route', '/api/leaderboard', false);
-  tryRegister('./routes/auth.route', '/api/auth', false);
+  
+  // Mount auth routes directly
+  const authRoutes = require('./routes/auth.route');
+  app.use('/api/auth', authRoutes);
+  console.log('✅ Auth route mounted at /api/auth');
 
-  // health endpoint
-  app.get('/api/health', (req, res) => res.json({ ok: true }));
+  // ===== HEALTH CHECK =====
+  app.get('/api/health', (req, res) => res.json({ ok: true, timestamp: new Date() }));
 
-  // serve home page
+  // ===== TEST ROUTE FOR DEBUGGING =====
+  app.get('/api/test', (req, res) => {
+    res.json({ 
+      message: 'Server is working!',
+      googleConfigured: !!process.env.GOOGLE_CLIENT_ID,
+      mongodbConnected: mongoose.connection.readyState === 1
+    });
+  });
+
+  // ===== DEBUG ROUTE TO CHECK USERS =====
+  app.get('/api/debug/users', async (req, res) => {
+    try {
+      const users = await User.find({});
+      const emails = await Email.find({});
+      res.json({
+        users: users.map(u => ({ 
+          id: u._id, 
+          name: u.name, 
+          email: u.email, 
+          provider: u.authProvider,
+          hasGoogleId: !!u.googleId 
+        })),
+        emails: emails.map(e => ({ 
+          email: e.email, 
+          hasPassword: !!e.password, 
+          userId: e.userId 
+        }))
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ===== STATIC PAGES =====
   app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', '..', 'public', 'index.html'));
   });
 
-  // serve feature page
   app.get('/feature', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'frontend', 'feature.html'));
+    res.sendFile(path.join(__dirname, '..', '..', 'public', 'feature.html'));
   });
-  //live tracking feature
 
   app.get('/activity-tracking', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'frontend', 'activity-tracking', 'activityTracking.html'));
   });
 
-  // contact API (save to DB + send email)
-  app.post('/api/contact', async (req, res) => {
-    try {
-      const { name, email, message } = req.body || {};
-      if (!name || !email || !message) {
-        return res.status(400).json({ error: 'Please provide name, email and message.' });
-      }
+  app.get('/auth.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', '..', 'public', 'auth.html'));
+  });
 
-      // save to DB if model present
-      let saved = null;
-      if (Message) {
-        try {
-          saved = await Message.create({ name, email, message });
-          console.log('Saved message id:', saved._id);
-        } catch (dbErr) {
-          console.error('DB save failed:', dbErr && dbErr.message ? dbErr.message : dbErr);
+  app.get('/dashboard.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', '..', 'public', 'dashboard.html'));
+  });
+   app.get('/3dearth', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', '..', 'public', '3dearth.html'));
+  });
+  app.get('/Gamified Challenge', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', '..', 'public', 'GM.html'));
+  });
+   app.get('/work', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', '..', 'public', 'work.html'));
+  });
+
+  // =================== CARBON CALCULATOR ===================
+  // =================== CARBON CALCULATOR ===================
+// =================== CARBON CALCULATOR ===================
+// // =================== CARBON CALCULATOR ===================
+app.get('/carbon-calculator', (req, res) => res.render('index'));
+app.post('/calculate', (req, res) => {
+    const { travelType, distance, electricity, foodType, foodQuantity, foodUnit } = req.body;
+    
+    console.log('Calculating for:', { travelType, distance, electricity, foodType, foodQuantity, foodUnit });
+    
+    // Travel emission factors (kg CO2 per km)
+    const travelFactors = { 
+        car: 0.21,    // 0.21 kg CO2 per km
+        bus: 0.105,   // 0.105 kg CO2 per km
+        bike: 0.02,   // Small factor for manufacturing
+        walk: 0       // 0 kg CO2 per km
+    };
+
+    // Food emission factors (kg CO2 per kg/litre of food)
+    const foodFactors = {
+        dairy: 2.5,        // Dairy products
+        plant: 0.8,        // Plant-based food
+        chicken: 3.5,      // Chicken
+        packaged: 2.0,     // Packaged food
+        beverages: 0.5     // Beverages (per litre)
+    };
+
+    // Calculate travel
+    const travel = Number(distance) * (travelFactors[travelType] || 0);
+    
+    // Calculate energy
+    const energy = Number(electricity) * 0.233; // kg CO2 per kWh
+    
+    // Calculate food with proper error handling
+    let quantity = 0;
+    let foodFoot = 0;
+    
+    if (foodType && foodType !== '') {
+        quantity = parseFloat(foodQuantity);
+        if (isNaN(quantity) || quantity < 0) {
+            quantity = 0.5; // Default value
         }
-      }
+        
+        const factor = foodFactors[foodType] || 1.5;
+        foodFoot = quantity * factor;
+    }
 
-      // prepare email
-      const fromName = process.env.FROM_NAME || 'Website';
-      const fromEmail = process.env.FROM_EMAIL || process.env.EMAIL_USER || 'no-reply@example.com';
+    const totalFootprint = (travel + energy + foodFoot).toFixed(2);
 
-      const mailOptions = {
-        from: `${fromName} <${fromEmail}>`,
-        to: process.env.EMAIL_TO || process.env.EMAIL_USER || 'you@example.com',
-        subject: `New contact from ${name}`,
-        text: `Name: ${name}\nEmail: ${email}\n\n${message}\n\nSavedID: ${saved ? saved._id : 'not-saved'}`,
-        html: `<p><strong>Name:</strong> ${name}</p>
-               <p><strong>Email:</strong> ${email}</p>
-               <p><strong>Message:</strong><br/>${(message || '').replace(/\n/g, '<br/>')}</p>
-               <p><em>SavedID: ${saved ? saved._id : 'not-saved'}</em></p>`
-      };
+    console.log('Results:', { travel, energy, foodFoot, totalFootprint });
 
-      // send email if transporter configured
+    // PASS ALL VARIABLES to result.ejs
+    res.render('result', {
+        totalFootprint,
+        travel: travel.toFixed(2),
+        electricity: energy.toFixed(2),
+        food: foodFoot.toFixed(2),
+        foodType: foodType || 'Not selected',
+        quantity: quantity.toFixed(2),
+        foodUnit: foodUnit || 'kg'
+    });
+}); 
+// =================== RECOMMENDATIONS PAGE ===================
+app.get('/recommendations', (req, res) => {
+    const fp = parseFloat(req.query.fp) || 0;
+    
+    console.log('Generating recommendations for footprint:', fp);
+    
+    // Generate recommendations based on footprint value
+    let recommendations = [];
+    
+    if (fp < 10) {
+        recommendations = [
+            "Great job! Your carbon footprint is already low — keep using sustainable transport.",
+            "Try switching to LED bulbs and maintaining energy-efficient habits.",
+            "Consider sharing your eco-friendly habits with friends!"
+        ];
+    } else if (fp < 20) {
+        recommendations = [
+            "Consider using public transport 2–3 times a week instead of driving.",
+            "Reduce meat intake by 20–30% to lower emissions.",
+            "Unplug electronics when not in use to save energy."
+        ];
+    } else if (fp < 30) {
+        recommendations = [
+            "Try carpooling or combining trips to reduce fuel consumption.",
+            "Switch to energy-efficient appliances and LED lighting.",
+            "Incorporate more plant-based meals into your diet."
+        ];
+    } else {
+        recommendations = [
+            "High footprint detected — consider shifting to a greener commute.",
+            "Use energy-efficient appliances and track your electricity usage.",
+            "Try a weekly vegetarian day to reduce food-related emissions.",
+            "Consider offsetting your carbon footprint through tree planting."
+        ];
+    }
+    
+    // Add food-specific recommendations
+    recommendations.push("Choose locally sourced foods to reduce transport emissions.");
+    recommendations.push("Reduce food waste by planning meals and storing food properly.");
+    
+    res.render('recommendations', { 
+        fp: fp.toFixed(2),
+        recommendations: recommendations,
+        rec: recommendations // For backward compatibility
+    });
+});
+// =================== CONTACT API ===================
+  app.post('/api/contact', async (req, res) => {
+    const { name, email, message } = req.body;
+    if (!name || !email || !message)
+      return res.status(400).json({ success: false, msg: 'All fields required' });
+
+    try {
+      if (Message) await Message.create({ name, email, message });
+
       if (transporter) {
         try {
-          const info = await transporter.sendMail(mailOptions);
-          console.log('Email sent:', info && (info.messageId || info.response) ? info.messageId || info.response : info);
-        } catch (sendErr) {
-          console.error('Failed to send email:', sendErr && sendErr.message ? sendErr.message : sendErr);
+          await transporter.sendMail({
+            from: `"EcoTrack Contact" <${process.env.EMAIL_USER}>`,
+            to: process.env.EMAIL_USER,
+            subject: '📩 New Contact Message - EcoTrack',
+            html: `<h3>New Message</h3><p><b>Name:</b> ${name}</p><p><b>Email:</b> ${email}</p><p><b>Message:</b> ${message}</p>`
+          });
+          console.log('📧 Contact email sent successfully');
+        } catch (emailError) {
+          console.error('❌ Failed to send email:', emailError.message);
+          // Still return success even if email fails (message saved to DB)
         }
-      } else {
-        console.log('No transporter configured; skipping email send.');
       }
-
-      return res.json({ success: true, savedId: saved ? saved._id : null });
-    } catch (err) {
-      console.error('/api/contact unexpected error:', err && err.stack ? err.stack : err);
-      return res.status(500).json({ error: 'Server error' });
+      
+      res.json({ success: true, msg: 'Message sent successfully' });
+    } catch (error) {
+      console.error('Contact Error:', error);
+      res.status(500).json({ success: false, msg: 'Server error' });
     }
   });
-  
-  // socket handlers
+
+  // =================== SOCKET.IO ===================
   io.on('connection', (socket) => {
-    console.log('Socket connected:', socket.id);
+    console.log('🔌 New client connected:', socket.id);
+
     socket.on('getRecent', async (limit = 100) => {
-      try {
-        if (Activity && typeof Activity.find === 'function') {
-          const recent = await Activity.find({}).sort({ createdAt: -1 }).limit(limit);
-          socket.emit('recent', recent);
-        } else {
-          socket.emit('recent', []); // fallback
-        }
-      } catch (err) {
-        console.error('getRecent error:', err && err.message ? err.message : err);
-        socket.emit('recent', []);
-      }
+      if (!Activity) return socket.emit('recent', []);
+      const recent = await Activity.find({}).sort({ createdAt: -1 }).limit(limit);
+      socket.emit('recent', recent);
     });
-    socket.on('disconnect', () => console.log('Socket disconnected:', socket.id));
+
+    socket.on('disconnect', () => {
+      console.log('🔌 Client disconnected:', socket.id);
+    });
   });
 
-  server.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+  // =================== ERROR HANDLING ===================
+  app.use((req, res) => {
+    res.status(404).json({ error: 'Route not found' });
+  });
+
+  app.use((err, req, res, next) => {
+    console.error('Server Error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  });
+
+  // =================== LISTEN ===================
+  server.listen(PORT, () => {
+    console.log(`🔥 Server running on http://localhost:${PORT}`);
+    console.log(`📧 Email ${transporter ? 'configured' : 'not configured'}`);
+    console.log(`🔑 Google OAuth ${process.env.GOOGLE_CLIENT_ID ? 'configured' : 'NOT configured ⚠️'}`);
+    console.log(`🍃 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`\n📋 Test these URLs:`);
+    console.log(`→ http://localhost:${PORT}/api/test`);
+    console.log(`→ http://localhost:${PORT}/api/auth/google`);
+    console.log(`→ http://localhost:${PORT}/auth.html`);
+  });
 }
 
 startServer().catch(err => {
-  console.error('Failed to start server:', err && err.message ? err.message : err);
+  console.error('💥 Server failed to start:', err);
   process.exit(1);
 });

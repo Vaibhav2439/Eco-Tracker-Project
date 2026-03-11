@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Carbon Footprint</title>
+    <link rel="stylesheet" href="/css/public.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .food-icon {
+            font-size: 28px;
+            min-width: 40px;
+            text-align: center;
+        }
+        .food-detail {
+            color: #b0c4d9;
+            font-size: 12px;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .food-detail i {
+            font-size: 10px;
+            color: var(--accent1);
+        }
+    </style>
+</head>
+
+<body class="carbon-body">
+
+<%- include("partials/navbar") %>
+
+<section class="result-wrapper fade-in">
+
+    <div class="result-header">
+        <h2>Your Carbon Footprint</h2>
+        <p>Total: <span class="highlight"><%= totalFootprint %> kg CO₂</span></p>
+    </div>
+
+    <div class="result-card">
+
+        <div class="result-item">
+            <i class="fas fa-car-side"></i>
+            <div>
+                <h4>Travel</h4>
+                <p><%= travel %> kg CO₂</p>
+            </div>
+        </div>
+
+        <div class="result-item">
+            <i class="fas fa-bolt"></i>
+            <div>
+                <h4>Energy</h4>
+                <p><%= electricity %> kg CO₂</p>
+            </div>
+        </div>
+
+        <div class="result-item">
+            <% 
+            let foodIcon = 'fas fa-utensils';
+            let foodColor = 'var(--accent1)';
+            let foodName = 'Food';
+            
+            if (typeof foodType !== 'undefined' && foodType) {
+                if (foodType === 'dairy') { 
+                    foodIcon = 'fas fa-cheese';
+                    foodColor = '#f1c40f';
+                    foodName = 'Dairy';
+                } else if (foodType === 'plant') { 
+                    foodIcon = 'fas fa-seedling';
+                    foodColor = '#2ecc71';
+                    foodName = 'Plant-Based';
+                } else if (foodType === 'chicken') { 
+                    foodIcon = 'fas fa-drumstick-bite';
+                    foodColor = '#e67e22';
+                    foodName = 'Chicken';
+                } else if (foodType === 'packaged') { 
+                    foodIcon = 'fas fa-box';
+                    foodColor = '#95a5a6';
+                    foodName = 'Packaged Food';
+                } else if (foodType === 'beverages') { 
+                    foodIcon = 'fas fa-mug-hot';
+                    foodColor = '#3498db';
+                    foodName = 'Beverages';
+                }
+            }
+            %>
+            <i class="<%= foodIcon %> food-icon" style="color: <%= foodColor %>;"></i>
+            <div>
+                <h4><%= foodName %></h4>
+                <p><%= food %> kg CO₂</p>
+                <% if (typeof quantity !== 'undefined' && quantity && !isNaN(quantity)) { %>
+                    <div class="food-detail">
+                        <i class="fas fa-weight-scale"></i> <%= quantity %> <%= foodUnit || 'kg' %>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <a href="/recommendations?fp=<%= totalFootprint %>" class="grad-btn">
+            Get Recommendations
+        </a>
+
+    </div>
+
+</section>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

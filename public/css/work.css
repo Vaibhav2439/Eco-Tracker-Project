@@ -1,0 +1,526 @@
+:root {
+  --green: #22c55e;
+  --bg: #030305;
+}
+
+body {
+  margin: 0;
+  background: #0b0f19;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: white;
+  padding-top: 80px;
+}
+
+/* Header - Navbar Styles */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 19px 0;
+  background: rgba(5, 8, 12, 0.75);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.logo {
+  font-weight: 800;
+  color: var(--green);
+  font-size: 20px;
+  letter-spacing: 0.3px;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav a {
+  color: #cfe8d9;
+  text-decoration: none;
+  margin: 0 12px;
+  font-weight: 500;
+  font-size: 20px;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  transition: all 0.3s ease;
+}
+
+.nav a.nav-link:hover {
+  color: var(--green);
+  text-shadow: 0 0 8px rgba(41,194,107,0.4);
+}
+
+.nav .btn {
+  margin-left: 12px;
+}
+
+/* Auth nav buttons container */
+.auth-nav-buttons {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 12px;
+  gap: 12px;
+}
+
+/* Button Styles */
+.btn {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-weight: 600;
+  border: 0;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  transition: all 0.2s ease;
+}
+
+.btn.small {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.btn.ghost {
+  background: transparent;
+  color: #bcdcc6;
+  border: 1px solid rgba(255,255,255,0.05);
+  font-size: 13px;
+}
+
+.btn.primary {
+  background: var(--green);
+  color: #081010;
+  box-shadow: 0 6px 20px rgba(32,200,120,0.08);
+  font-size: 13px;
+}
+
+/* Logout Button */
+.logout-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ff6b6b !important;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  margin: 0 !important;
+  padding: 6px 12px !important;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.logout-btn i {
+  font-size: 12px;
+  color: #ff6b6b;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 107, 107, 0.2);
+  border-color: #ff6b6b;
+  transform: translateY(-2px);
+}
+
+.logout-btn:hover i {
+  transform: translateX(3px);
+}
+
+/* FIRST SECTION */
+.work-section {
+  margin-top: 25px;
+  text-align: center;
+}
+
+/* EXACT matching gradient text */
+.title {
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-weight: 800;
+  font-size: 4.5rem;
+  margin-bottom: 0;
+  background: linear-gradient(90deg, #4CD4C0, #2EA8FF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+.subtitle {
+  margin-top: 10px;
+  font-size: 18px;
+  color: #cfd2d4;
+  line-height: 1.5;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 800px;
+}
+
+/* JOURNEY SECTION */
+.journey {
+  max-width: 900px;
+  margin: 40px auto;
+  background: #0e1c2a;
+  padding: 40px;
+  border-radius: 12px;
+}
+
+.journey h2 {
+  color: #39d98a;
+  margin-bottom: 10px;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.subtitle2 {
+  color: #a5b3c2;
+  margin-bottom: 30px;
+}
+
+/* STEP CARDS */
+.step-card {
+  display: flex;
+  align-items: center;
+  background: #1c2b3b;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  transition: transform 0.3s ease;
+}
+
+.step-card:hover {
+  transform: translateX(10px);
+  background: #24384b;
+}
+
+.icon {
+  width: 50px;
+  height: 50px;
+  background: #c7f7d4;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #1a7f37;
+  margin-right: 20px;
+  flex-shrink: 0;
+}
+
+.icon.blue {
+  background: #d7ebff;
+  color: #2b6cb0;
+}
+
+.icon.green {
+  background: #d4f5df;
+  color: #1c8b4d;
+}
+
+.icon.leaf {
+  background: #e0f7ec;
+  color: #1fa463;
+}
+
+.icon.trophy {
+  background: #fff2cc;
+  color: #d4a017;
+}
+
+.icon.globe {
+  background: #d9f2e6;
+  color: #1fa463;
+}
+
+.icon.plant {
+  background: #e6f7ec;
+  color: #2e9e60;
+}
+
+.icon.community {
+  background: #efe6ff;
+  color: #7a5cff;
+}
+
+.content {
+  flex: 1;
+  text-align: left;
+}
+
+.content h3 {
+  font-size: 18px;
+  margin-bottom: 5px;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.content p {
+  font-size: 14px;
+  color: #aab6c2;
+}
+
+.arrow {
+  color: #39d98a;
+  font-size: 20px;
+  margin-left: 15px;
+  flex-shrink: 0;
+}
+
+/* BENEFITS SECTION */
+.benefits {
+  max-width: 1000px;
+  margin: 80px auto;
+  padding: 40px;
+  background: #0e1c2a;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.benefits h2 {
+  color: #39d98a;
+  margin-bottom: 10px;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.benefit-sub {
+  color: #aab6c2;
+  margin-bottom: 40px;
+}
+
+.benefit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.benefit-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  background: #1c2b3b;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: left;
+  transition: 0.3s;
+}
+
+.benefit-card:hover {
+  background: #24384b;
+  transform: translateY(-3px);
+}
+
+.benefit-icon {
+  font-size: 22px;
+  color: #39d98a;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.benefit-card h3 {
+  font-size: 18px;
+  margin-bottom: 5px;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.benefit-card p {
+  font-size: 14px;
+  color: #aab6c2;
+}
+
+/* FUTURE SECTION */
+.future {
+  text-align: center;
+  padding: 80px 20px;
+  max-width: 1000px;
+  margin: 80px auto;
+  padding: 40px;
+  background: #0e1c2a;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.future h2 {
+  color: #39d98a;
+  margin-bottom: 10px;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.subtitle5 {
+  color: #a5b3c2;
+  margin-bottom: 50px;
+}
+
+/* GRID */
+.card-container {
+  max-width: 1100px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+/* CARD */
+.card {
+  background: #1b2b3a;
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  background: #223647;
+}
+
+/* ICON CIRCLE */
+.icon-circle {
+  width: 55px;
+  height: 55px;
+  background: #c9f4d9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px auto;
+}
+
+.icon-circle i {
+  font-size: 24px;
+  color: #28c76f;
+}
+
+/* TEXT */
+.card h3 {
+  font-size: 18px;
+  margin-bottom: 5px;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.card p {
+  font-size: 14px;
+  color: #b7c6d3;
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+/* BUTTON */
+button {
+  background: #34d17a;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  color: white;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+button:hover {
+  background: #28b867;
+}
+
+/* ECO BANNER */
+.eco-banner {
+  width: 90%;
+  max-width: 1100px;
+  margin: 50px auto;
+  padding: 60px 40px;
+  border-radius: 15px;
+  text-align: center;
+  background: linear-gradient(to right, #2ecc71, #3498db);
+  color: white;
+}
+
+.eco-banner h2 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.eco-banner p {
+  max-width: 700px;
+  margin: 0 auto;
+  font-size: 16px;
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
+.eco-banner button {
+  margin-top: 30px;
+  padding: 12px 30px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  background: white;
+  color: #333;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.eco-banner button:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.25);
+}
+
+/* RESPONSIVE */
+@media(max-width:900px) {
+  .card-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .benefit-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .title {
+    font-size: 3rem;
+  }
+}
+
+@media(max-width:600px) {
+  .card-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .step-card {
+    flex-wrap: wrap;
+  }
+  
+  .arrow {
+    margin-left: 70px;
+    margin-top: 10px;
+  }
+  
+  .title {
+    font-size: 2.5rem;
+  }
+}
+
+/* Remove duplicate nav styles */
+.nav:not(.site-header .nav) {
+  font-size: 15px;
+}
+.nav{
+  font-size: 20px;
+}
+.btn.ghost{
+font-size: 15px;
+}
+.btn.primary{
+
+font-size: 13px;
+}

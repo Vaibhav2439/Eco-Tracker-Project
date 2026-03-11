@@ -3,30 +3,30 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>EcoTrack — Be the Change</title>
-
+  <title>EcoTrack</title>
+ 
   <!-- Google Fonts (close match) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-
-  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <!-- white-mode removed -->
 </head>
 <body>
   <header class="site-header">
     <div class="container header-inner">
-      <div class="logo">EcoTrack</div>
+      <div class="logo">🍃 EcoTrack</div>
       <nav class="nav">
         <a href="/" class="nav-link">Home</a>
         <a href="/feature" class="nav-link">Features</a>
-        <a href="#how" class="nav-link">How It Works</a>
-        <a href="#about" class="nav-link">About</a>
-        <a href="#contact" class="nav-link">Contact</a>
-        <a class="btn small ghost" href="/auth.html">Login</a>
-        <a class="btn small primary" href="/auth.html">Sign Up</a>
+        <a href="/work.html" class="nav-link">How It Works</a>
+        <a href="/AboutUs.html" class="nav-link">About</a>
+        <a href="/contact.html" class="nav-link">Contact</a>
+        
+        <!-- Auth buttons will be dynamically updated by main.js -->
+        <div id="authNavButtons" class="auth-nav-buttons"></div>
       </nav>
     </div>
   </header>
-
   <main>
     <!-- HERO -->
     <section id="home" class="hero">
@@ -50,9 +50,9 @@
       AI-powered tracking and sustainable solutions.
     </p>
 
-    <a href="#" class="btn cta">Get Started Now</a>
+    <a href="/carbon-calculator" class="btn cta">Get Started Now</a>
 
-  
+
 
 
 <!-- ICONS BELOW BUTTON -->
@@ -66,7 +66,6 @@
       <div class="stars"></div>
     </section>
 
-    <!-- WHAT SETS US APART -->
 <!-- WHAT SETS US APART -->
 <section id="features" class="section apart-section">
   <div class="container apart-box">
@@ -327,7 +326,7 @@
 
     
     <!-- CONTACT / GET IN TOUCH -->
-    <section id="contact" class="section contact-section">
+      <section id="contact" class="section contact-section">
       <div class="container narrow">
         <h2 class="section-title white">Get in Touch</h2>
         <p class="muted white">Have questions or want to collaborate? We'd love to hear from you!</p>
@@ -371,25 +370,79 @@
           </div>
           <div class="card faq-card">
             <h4>Can I use it for free?</h4>
-            <p>Yes, our free plan offers basic tracking and community features.</p>
+            <p>Yes, our free plan offers basic tracking features.</p>
           </div>
         </div>
       </div>
     </section>
 
-    
-
   </main>
 
-  <footer class="site-footer">
-    <div class="container">
-      <div class="footer-inner">
-        <div>© <span id="year"></span> EcoTrack</div>
-        <div>Designed to help reduce carbon footprint</div>
+<footer class="ec-footer">
+  <div class="ec-footer-container">
+
+    <!-- Brand -->
+    <div class="ec-footer-col brand">
+      <h3>
+        <i class="fa-solid fa-leaf"></i>
+        EcoTrack
+      </h3>
+      <p>
+        Our mission is to make it easier for everyone to track their
+        environmental impact and make sustainable choices every day.
+      </p>
+      <span class="ec-footer-note">
+         Created during final year project • Sponsored by Robonist Tech Solutions 
+      </span>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="ec-footer-col">
+      <h4>Quick Links</h4>
+      <a href="/">Home</a>
+      <a href="/feature">Features</a>
+      <a href="/work.html" class="nav-link">How It Works</a>
+      <a href="/leaderboard">Leaderboard</a>
+      <a href="/contact.html">Contact</a>
+    </div>
+
+    <!-- Resources -->
+    <div class="ec-footer-col">
+      <h4>Resources</h4>
+      <a href="#">Help</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms & Conditions</a>
+      <a href="#faq">FAQ</a>
+    </div>
+
+    <!-- Connect -->
+    <div class="ec-footer-col">
+      <h4>Connect With Us</h4>
+
+      <div class="ec-footer-socials">
+        <a href="https://www.instagram.com/ecotrack94?igsh=cnR1c2s1M2xnaGY2"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#"><i class="fa-brands fa-whatsapp"></i></a>
+        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+      </div>
+
+      <div class="ec-subscribe">
+        <input type="email" placeholder="Your email">
+        <button>
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
       </div>
     </div>
-  </footer>
 
+  </div>
+
+  <div class="ec-footer-bottom">
+    <div class="ec-glow-line"></div>
+    <p>Built with passion by the EcoTrack Team.</p>
+  </div>
+</footer>
+
+  <!-- Main JS file that handles navbar authentication -->
   <script src="/js/main.js"></script>
+
 </body>
 </html>

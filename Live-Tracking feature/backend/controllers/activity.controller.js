@@ -1,19 +1,62 @@
 const activityService = require('../services/activity.service');
+const { updateUserPoints } = require('./leaderboard.controller');
+
+// Points mapping for different activities
+const ACTIVITY_POINTS = {
+  'Recycling': 15,
+  'Commute': 10,
+  'Energy Usage': 12,
+  'Water Consumption': 10,
+  'Waste Reduction': 15,
+  default: 5
+};
 
 async function create(req, res, io) {
   try {
-    const { type, value, unit, user } = req.body;
-    if (!type || value == null) return res.status(400).json({ error: 'type and value required' });
-    const activity = await activityService.createActivity({ type, value, unit, user });
-    if (io) io.emit('activityCreated', activity);
-    return res.json({ success: true, activity });
+    const { type, value, unit, user, userId } = req.body;
+    
+    if (!type || value == null) {
+      return res.status(400).json({ error: 'type and value required' });
+    }
+    
+    // Calculate points for this activity
+    const pointsPerUnit = ACTIVITY_POINTS[type] || ACTIVITY_POINTS.default;
+    const pointsEarned = Math.round(value * pointsPerUnit);
+    
+    // Create the activity
+    const activity = await activityService.createActivity({ 
+      type, 
+      value, 
+      unit, 
+      user,
+      userId 
+    });
+    
+    // Update user points if userId is provided
+    if (userId) {
+      await updateUserPoints(userId, pointsEarned);
+    }
+    
+    if (io) {
+      io.emit('activityCreated', {
+        ...activity.toObject(),
+        points: pointsEarned
+      });
+    }
+    
+    return res.json({ 
+      success: true, 
+      activity,
+      pointsEarned
+    });
+    
   } catch (err) {
     console.error('create activity error', err);
     return res.status(500).json({ error: 'server error' });
   }
 }
 
-async function recent(req, res) {
+async function getRecent(req, res) {
   try {
     const limit = Math.min(parseInt(req.query.limit) || 200, 2000);
     const list = await activityService.getRecent(limit);
@@ -34,4 +77,4 @@ async function summary(req, res) {
   }
 }
 
-module.exports = { create, recent, summary };
+module.exports = { create, getRecent, summary };

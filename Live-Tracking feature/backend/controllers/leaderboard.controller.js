@@ -13,7 +13,7 @@ async function getLeaderboard(req, res) {
     return res.json(Array.isArray(list) ? list : []);
   } catch (err) {
     console.error("leaderboard error:", err.message || err);
-    return res.status(500).json([]);
+    return res.status(500).json({ error: "Failed to fetch leaderboard" });
   }
 }
 

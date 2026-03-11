@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="./css/GM.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <section class="quiz-section">
+        <div class="quiz-box">
+          <h1>--Quiz --</h1>
+          <div class="quiz-header">
+            <span class="header-score">Score: 0 / 5</span>
+          </div>
+
+      
+
+<div class="progress-container">
+  <div id="progress-bar"></div>
+</div>
+
+<div>Time: <span id="time">30</span>s</div>
+
+          
+          <h2 class="question-text">1. What does HTML stand for?</h2>
+          <div class="option-list">
+           <div class="option">
+              <span>A. Hyper Type Multi Language</span>
+            </div>
+            <div class="option">
+              <span>B. Hyper Text Multiple Language</span>
+            </div>
+            <div class="option">
+              <span>C. Hyper Text Markup Language</span>
+            </div>
+            <div class="option">
+              <span>D. Home Text Multi Language</span>
+            </div>
+          </div> 
+          <div class="quiz-footer">
+            <span class="question-total">1 of 5 Queations</span>
+            <button class="next-btn" type="button">Next</button>
+          </div>
+        </div>
+        <div class="result-box">
+          <h2>Quiz Result!</h2>
+          <div class="percentage-container">
+            <div class="circular-progress">
+              <span class="progress-value">0%</span>
+            </div>
+
+            <div class="score-text">Your Score 0 out of 5</div>
+          </div>
+
+          <div class="badge-container">
+  <h3>🏅 Weekly Eco Badge</h3>
+  <p id="weekly-badge"></p>
+</div>
+
+<div class="leaderboard-container">
+  <h3>🏆 Leaderboard</h3>
+  <div id="leaderboard"></div>
+</div>
+
+<div class="streak-container">
+  🔥 Daily Streak: <span id="streak-count">0</span> days
+</div>
+
+          <div class="buttons">
+            <button class="tryAgain-btn">Try Again</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </header>
+  <script src="/js/questions.js"></script>
+  <script src="/js/script.js"></script>
+
+</body>
+</html>

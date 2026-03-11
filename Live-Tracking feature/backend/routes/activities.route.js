@@ -2,6 +2,7 @@
 const express = require('express');
 const activityController = require('../controllers/activity.controller');
 
+
 module.exports = function (io) {
   const router = express.Router();
 
@@ -18,16 +19,7 @@ module.exports = function (io) {
   // GET /api/activities/recent   -> recent activities
   router.get('/recent', async (req, res, next) => {
     try {
-      await activityController.recent(req, res);
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  // GET /api/activities/summary  -> summary by type
-  router.get('/summary', async (req, res, next) => {
-    try {
-      await activityController.summary(req, res);
+      await activityController.getRecent(req, res);
     } catch (err) {
       next(err);
     }

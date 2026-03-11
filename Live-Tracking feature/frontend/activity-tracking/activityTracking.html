@@ -31,13 +31,20 @@
     <div class="sidebar-section">
       <div class="sidebar-title">Activity Tracking</div>
       <nav class="sidebar-nav" aria-label="Main navigation">
-        <a href="#" class="sidebar-link"><span class="side-ico">🏠</span><span class="side-label">Dashboard</span></a>
-        <a href="#" class="sidebar-link"><span class="side-ico">👥</span><span class="side-label">Community Hub</span></a>
-        <a href="/activity-tracking" class="sidebar-link active" aria-current="page"><span class="side-ico">🍃</span><span class="side-label">Activity Tracking</span></a>
-        <a href="#" class="sidebar-link"><span class="side-ico">⚙️</span><span class="side-label">Settings</span></a>
+      
+        <!-- Only Activity Tracking link remains -->
+        <a href="/activity-tracking" class="sidebar-link active" aria-current="page">
+          <span class="side-ico">🍃</span>
+          <span class="side-label">Activity Tracking</span>
+        </a>
+          <!-- Back button at the top -->
+        <a href="javascript:history.back()" class="sidebar-link back-button" aria-label="Go back">
+          <span class="side-ico">←</span>
+          <span class="side-label">Go Back</span>
+        </a>
       </nav>
     </div>
-    <div class="sidebar-footer muted">v1.0 • EcoTrack</div>
+    <!-- Sidebar footer removed completely -->
   </aside>
 
   <!-- MAIN PAGE -->
@@ -130,6 +137,7 @@
             <input id="goalTarget" placeholder="Target (e.g. 10)" inputmode="numeric" />
             <button id="addGoalBtn" class="btn strong log-btn-green">Add Goal</button>
           </div>
+          <div id="goalError" class="goal-error" style="color: #ff6b6b; font-size: 12px; margin-top: 8px; display: none;"></div>
         </div>
 
         <div class="card card-active-goals">
@@ -167,7 +175,7 @@
 
       <div class="modal-body">
         <label class="combined-control">
-          <input id="activityValue" type="number" placeholder="Enter value" />
+          <input id="activityValue" type="number" placeholder="Enter value" step="0.1" />
           <select id="activityUnit" class="styled-select"></select>
         </label>
 
@@ -179,8 +187,11 @@
     </div>
   </div>
 
-  <div id="toast" class="toast hidden">Saved</div>
+  
 
+  <!-- MAIN.JS - This is critical for navbar authentication -->
+  <script src="/js/main.js"></script>
+  
   <!-- App JS -->
   <script src="/activity-tracking/activityTracking.js"></script>
 

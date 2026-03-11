@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Eco Recommendations</title>
+    <link rel="stylesheet" href="/css/public.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .recommend-wrapper {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .recommend-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .recommend-header h2 {
+            font-size: 2.2rem;
+            color: var(--accent1);
+            margin-bottom: 10px;
+        }
+        
+        .recommend-header p {
+            font-size: 1.2rem;
+            color: #b0c4d9;
+        }
+        
+        .recommend-header .highlight {
+            color: var(--accent1);
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+        
+        .recommend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .recommend-card {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 20px var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+        }
+        
+        .recommend-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            border-color: rgba(74, 222, 128, 0.3);
+        }
+        
+        .recommend-card i {
+            font-size: 40px;
+            color: var(--accent1);
+            margin-bottom: 15px;
+        }
+        
+        .recommend-card h3 {
+            font-size: 1.4rem;
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        .recommend-card p {
+            font-size: 1rem;
+            color: #b0c4d9;
+            line-height: 1.6;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: transparent;
+            color: var(--accent1);
+            border: 2px solid var(--accent1);
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .back-btn:hover {
+            background: var(--accent1);
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.3);
+        }
+        
+        .back-btn i {
+            margin-right: 8px;
+        }
+        
+        .fade-in {
+            animation: fade 0.8s ease-out;
+        }
+        
+        @keyframes fade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+
+<body class="carbon-body">
+
+<%- include("partials/navbar") %>
+
+<section class="recommend-wrapper fade-in">
+
+    <div class="recommend-header">
+        <h2>Personalized Recommendations</h2>
+        <p>Your carbon footprint: <span class="highlight"><%= fp %> kg CO₂</span></p>
+    </div>
+
+    <div class="recommend-grid">
+        <% if (typeof recommendations !== 'undefined' && recommendations.length > 0) { %>
+            <% recommendations.forEach(function(recommendation, index) { %>
+                <div class="recommend-card">
+                    <% if (index === 0) { %>
+                        <i class="fas fa-leaf"></i>
+                    <% } else if (index === 1) { %>
+                        <i class="fas fa-lightbulb"></i>
+                    <% } else if (index === 2) { %>
+                        <i class="fas fa-car"></i>
+                    <% } else { %>
+                        <i class="fas fa-recycle"></i>
+                    <% } %>
+                    <h3>Tip <%= index + 1 %></h3>
+                    <p><%= recommendation %></p>
+                </div>
+            <% }); %>
+        <% } else if (typeof rec !== 'undefined' && rec.length > 0) { %>
+            <% rec.forEach(function(recommendation, index) { %>
+                <div class="recommend-card">
+                    <% if (index === 0) { %>
+                        <i class="fas fa-leaf"></i>
+                    <% } else if (index === 1) { %>
+                        <i class="fas fa-lightbulb"></i>
+                    <% } else if (index === 2) { %>
+                        <i class="fas fa-car"></i>
+                    <% } else { %>
+                        <i class="fas fa-recycle"></i>
+                    <% } %>
+                    <h3>Tip <%= index + 1 %></h3>
+                    <p><%= recommendation %></p>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <div class="recommend-card">
+                <i class="fas fa-leaf"></i>
+                <h3>Great Job!</h3>
+                <p>Your footprint is already low. Keep maintaining sustainable practices.</p>
+            </div>
+            <div class="recommend-card">
+                <i class="fas fa-sun"></i>
+                <h3>Go Solar</h3>
+                <p>Consider using solar chargers or solar home power for future savings.</p>
+            </div>
+            <div class="recommend-card">
+                <i class="fas fa-recycle"></i>
+                <h3>Recycle More</h3>
+                <p>Sort waste properly and recycle plastics, glass, and paper whenever possible.</p>
+            </div>
+        <% } %>
+    </div>
+
+    <a href="/carbon-calculator" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Calculate Again
+    </a>
+
+</section>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

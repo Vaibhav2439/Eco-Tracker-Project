@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Carbon Footprint Globe</title>
+  <link rel="stylesheet" href="./css/3dearth.css">
+  <!-- Google Font & Font Awesome for icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://unpkg.com/three"></script>
+  <script src="https://unpkg.com/globe.gl"></script>
+</head>
+<body>
+  <div id="globe"></div>
+
+  <div class="dashboard">
+    <h2 class="title"><i class="fas fa-globe-asia"></i> CLIMATE LEADERS</h2>
+
+    <!-- Global CO₂ meter & reset button -->
+    <div class="global-meter">
+      <div class="meter-info">
+        <span class="meter-label">CO₂ now</span>
+        <span class="meter-value" id="co2Value">425</span><span class="meter-unit">ppm</span>
+      </div>
+      <div class="meter-ring" id="co2Ring">
+        <div class="ring-fill"></div>
+      </div>
+      <button class="reset-btn" id="resetView" title="Reset globe view"><i class="fas fa-redo-alt"></i></button>
+    </div>
+
+    <!-- Stats row (India contribution, world total, AQI) -->
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-label"><i class="fas fa-chart-pie"></i> INDIA CONTRIB.</div>
+        <div class="stat-value">7.3<small>%</small></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label"><i class="fas fa-globe"></i> WORLD TOTAL</div>
+        <div class="stat-value">36.8<small> Gt</small></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label"><i class="fas fa-wind"></i> INDIA AQI</div>
+        <div class="stat-value aqi-medium">152</div>
+      </div>
+    </div>
+
+    <!-- Search bar -->
+    <div class="search-container">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" id="countrySearch" placeholder="Search country..." class="search-input">
+    </div>
+
+    <div class="section-title">
+      🔥 Top CO₂ emitters <span>2026</span>
+    </div>
+
+    <!-- Country list (will be populated) -->
+    <div class="country-list" id="country-list"></div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-item"><span class="color-dot dot-red"></span> Critical (4)</div>
+      <div class="legend-item"><span class="color-dot dot-orange"></span> High (6)</div>
+      <div class="legend-item"><span class="color-dot dot-yellow"></span> Moderate (8)</div>
+      <div class="legend-item"><span class="color-dot dot-green"></span> Low (6)</div>
+    </div>
+       <a href="javascript:history.back()" class="sidebar-link back-button" aria-label="Go back">
+          <span class="side-ico">←</span>
+          <span class="side-label">Go Back</span>
+
+    
+  </div>
+
+  <script src="/js/3dearth.js"></script>
+</body>
+</html>

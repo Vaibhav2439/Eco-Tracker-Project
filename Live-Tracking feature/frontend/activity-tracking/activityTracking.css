@@ -274,3 +274,40 @@ canvas{width:100%!important;height:auto;display:block;border-radius:12px;backgro
   opacity: 0.95;
   pointer-events: none;
 }
+/* Dummy user styling */
+.dummy-user {
+  opacity: 0.8;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03)) !important;
+}
+
+.dummy-user .user-name {
+  font-style: italic;
+}
+
+.dummy-user .points-pill {
+  background: rgba(255,255,255,0.02) !important;
+  color: #a0c0c0 !important;
+}
+
+/* Current user highlight - your existing style */
+.you-highlight-pdf {
+  background: linear-gradient(90deg, rgba(24,255,156,0.95), rgba(18,214,255,0.92)) !important;
+  color: #07221a !important;
+  border: 1px solid rgba(10,40,30,0.12) !important;
+  box-shadow: 0 10px 28px rgba(8,160,120,0.14) !important;
+}
+
+.you-highlight-pdf .user-name {
+  color: #07221a !important;
+  font-weight: 800;
+}
+
+.you-highlight-pdf .rank-badge {
+  background: rgba(255,255,255,0.95) !important;
+  color: #07221a !important;
+}
+
+.you-highlight-pdf .points-pill {
+  background: rgba(3,34,22,0.2) !important;
+  color: #ffffff !important;
+}
