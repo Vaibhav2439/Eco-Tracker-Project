@@ -7,8 +7,341 @@ document.addEventListener('DOMContentLoaded', () => {
   const showRegister = document.getElementById('showRegister');
   const showLogin = document.getElementById('showLogin');
   const togglePwd = document.getElementById('togglePwd');
-  const googleBtn = document.querySelector('.btn.google, #googleLogin');
+  const googleBtn = document.getElementById('googleLogin');
   
+  // ========== INPUT RESTRICTION FUNCTIONS ==========
+  function restrictNameInput(input) {
+    if (!input) return;
+    const regex = /^[A-Za-z\s]*$/; // Only letters and spaces
+    const value = input.value;
+    
+    if (!regex.test(value)) {
+      // Remove invalid characters
+      input.value = value.replace(/[^A-Za-z\s]/g, '');
+    }
+    
+    // Update validation hint
+    validateName(input);
+  }
+
+  function restrictEmailInput(input) {
+    if (!input) return;
+    const value = input.value;
+    
+    // Convert uppercase to lowercase automatically
+    if (/[A-Z]/.test(value)) {
+      input.value = value.toLowerCase();
+    }
+    
+    // Validate
+    validateEmail(input);
+  }
+
+  function restrictPasswordInput(input) {
+    if (!input) return;
+    const value = input.value;
+    
+    // Prevent typing beyond 15 characters
+    if (value.length > 15) {
+      input.value = value.slice(0, 15);
+    }
+    
+    validatePassword(input);
+  }
+
+  // ========== VALIDATION FUNCTIONS ==========           
+  function validateName(input) {
+    if (!input) return false;
+    
+    const name = input.value.trim();
+    const hint = document.getElementById('nameHint');
+    const parentRow = input.closest('.input-row');
+    const nameRegex = /^[A-Za-z\s]+$/; // Only letters and spaces
+    
+    if (!hint) return true;
+    
+    if (!name) {
+      hint.textContent = 'Name is required';
+      hint.className = 'validation-hint error';
+      if (parentRow) {
+        parentRow.classList.add('error');
+        parentRow.classList.remove('success');
+      }
+      return false;
+    }
+    
+    if (name.length < 3) {
+      hint.textContent = 'Name must be at least 3 characters';
+      hint.className = 'validation-hint error';
+      if (parentRow) {
+        parentRow.classList.add('error');
+        parentRow.classList.remove('success');
+      }
+      return false;
+    }
+    
+    if (name.length > 30) {
+      hint.textContent = 'Name cannot exceed 30 characters';
+      hint.className = 'validation-hint error';
+      if (parentRow) {
+        parentRow.classList.add('error');
+        parentRow.classList.remove('success');
+      }
+      return false;
+    }
+    
+    if (!nameRegex.test(name)) {
+      hint.textContent = 'Only letters and spaces are allowed';
+      hint.className = 'validation-hint error';
+      if (parentRow) {
+        parentRow.classList.add('error');
+        parentRow.classList.remove('success');
+      }
+      return false;
+    }
+    
+    hint.textContent = '✓ Valid name';
+    hint.className = 'validation-hint success';
+    if (parentRow) {
+      parentRow.classList.remove('error');
+      parentRow.classList.add('success');
+    }
+    return true;
+  }
+
+  function validateEmail(input) {
+    if (!input) return false;
+    
+    const email = input.value.trim();
+    const hintId = input.id === 'email' ? 'loginEmailHint' : 
+                   input.id === 'remail' ? 'emailHint' : null;
+    const hint = hintId ? document.getElementById(hintId) : null;
+    const parentRow = input.closest('.input-row');
+    const emailRegex = /^[a-z0-9]+@gmail\.com$/; // Only lowercase, must end with @gmail.com
+    
+    if (!hint) return true;
+    
+    if (!email) {
+      hint.textContent = 'Email is required';
+      hint.className = 'validation-hint error';
+      if (parentRow) {
+        parentRow.classList.add('error');
+        parentRow.classList.remove('success');
+      }
+      return false;
+    }
+    
+    // Check for uppercase letters
+    if (/[A-Z]/.test(email)) {
+      hint.textContent = 'Uppercase letters are not allowed';
+      hint.className = 'validation-hint error';
+      if (parentRow) {
+        parentRow.classList.add('error');
+        parentRow.classList.remove('success');
+      }
+      return false;
+    }
+    
+    if (!emailRegex.test(email)) {
+      if (!email.includes('@')) {
+        hint.textContent = 'Email must include @';
+      } else if (!email.endsWith('@gmail.com')) {
+        hint.textContent = 'Email must end with @gmail.com';
+      } else {
+        hint.textContent = 'Only letters and numbers before @';
+      }
+      hint.className = 'validation-hint error';
+      if (parentRow) {
+        parentRow.classList.add('error');
+        parentRow.classList.remove('success');
+      }
+      return false;
+    }
+    
+    hint.textContent = '✓ Valid email';
+    hint.className = 'validation-hint success';
+    if (parentRow) {
+      parentRow.classList.remove('error');
+      parentRow.classList.add('success');
+    }
+    return true;
+  }
+
+  function validatePassword(input) {
+    if (!input) return false;
+    
+    const password = input.value;
+    const hintId = input.id === 'password' ? 'loginPasswordHint' : 
+                   input.id === 'rpassword' ? 'passwordHint' : null;
+    const hint = hintId ? document.getElementById(hintId) : null;
+    const parentRow = input.closest('.input-row');
+    
+    if (!hint) return true;
+    
+    if (!password) {
+      hint.textContent = 'Password is required';
+      hint.className = 'validation-hint error';
+      if (parentRow) {
+        parentRow.classList.add('error');
+        parentRow.classList.remove('success');
+      }
+      return false;
+    }
+    
+    if (password.length < 8) {
+      hint.textContent = 'Password must be at least 8 characters';
+      hint.className = 'validation-hint error';
+      if (parentRow) {
+        parentRow.classList.add('error');
+        parentRow.classList.remove('success');
+      }
+      return false;
+    }
+    
+    if (password.length > 15) {
+      hint.textContent = 'Password cannot exceed 15 characters';
+      hint.className = 'validation-hint error';
+      if (parentRow) {
+        parentRow.classList.add('error');
+        parentRow.classList.remove('success');
+      }
+      return false;
+    }
+    
+    // Check for at least one number
+    if (!/\d/.test(password)) {
+      hint.textContent = 'Password must contain at least one number';
+      hint.className = 'validation-hint error';
+      if (parentRow) {
+        parentRow.classList.add('error');
+        parentRow.classList.remove('success');
+      }
+      return false;
+    }
+    
+    // Check for at least one uppercase letter
+    if (!/[A-Z]/.test(password)) {
+      hint.textContent = 'Password must contain at least one uppercase letter';
+      hint.className = 'validation-hint error';
+      if (parentRow) {
+        parentRow.classList.add('error');
+        parentRow.classList.remove('success');
+      }
+      return false;
+    }
+    
+    // Check for at least one special character
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      hint.textContent = 'Password must contain at least one special character';
+      hint.className = 'validation-hint error';
+      if (parentRow) {
+        parentRow.classList.add('error');
+        parentRow.classList.remove('success');
+      }
+      return false;
+    }
+    
+    hint.textContent = '✓ Strong password';
+    hint.className = 'validation-hint success';
+    if (parentRow) {
+      parentRow.classList.remove('error');
+      parentRow.classList.add('success');
+    }
+    return true;
+  }
+
+  // ========== SETUP INPUT RESTRICTIONS ==========
+  function setupInputListeners() {
+    // Login form inputs
+    const loginEmail = document.getElementById('email');
+    const loginPassword = document.getElementById('password');
+    
+    if (loginEmail) {
+      loginEmail.addEventListener('input', function() { 
+        restrictEmailInput(this); 
+      });
+      loginEmail.addEventListener('blur', function() { 
+        validateEmail(this); 
+      });
+      loginEmail.addEventListener('paste', function(e) {
+        e.preventDefault();
+        let pastedText = e.clipboardData.getData('text');
+        pastedText = pastedText.toLowerCase().replace(/[^a-z0-9@.]/g, '');
+        this.value = pastedText;
+        validateEmail(this);
+      });
+    }
+
+    if (loginPassword) {
+      loginPassword.addEventListener('input', function() { 
+        restrictPasswordInput(this); 
+      });
+      loginPassword.addEventListener('blur', function() { 
+        validatePassword(this); 
+      });
+      loginPassword.addEventListener('paste', function(e) {
+        e.preventDefault();
+        let pastedText = e.clipboardData.getData('text');
+        pastedText = pastedText.slice(0, 15);
+        this.value = pastedText;
+        validatePassword(this);
+      });
+    }
+
+    // Register form inputs
+    const regName = document.getElementById('rname');
+    const regEmail = document.getElementById('remail');
+    const regPassword = document.getElementById('rpassword');
+
+    if (regName) {
+      regName.addEventListener('input', function() { 
+        restrictNameInput(this); 
+      });
+      regName.addEventListener('blur', function() { 
+        validateName(this); 
+      });
+      regName.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const pastedText = e.clipboardData.getData('text');
+        const cleanedText = pastedText.replace(/[^A-Za-z\s]/g, '');
+        this.value = cleanedText;
+        validateName(this);
+      });
+    }
+
+    if (regEmail) {
+      regEmail.addEventListener('input', function() { 
+        restrictEmailInput(this); 
+      });
+      regEmail.addEventListener('blur', function() { 
+        validateEmail(this); 
+      });
+      regEmail.addEventListener('paste', function(e) {
+        e.preventDefault();
+        let pastedText = e.clipboardData.getData('text');
+        pastedText = pastedText.toLowerCase().replace(/[^a-z0-9@.]/g, '');
+        this.value = pastedText;
+        validateEmail(this);
+      });
+    }
+
+    if (regPassword) {
+      regPassword.addEventListener('input', function() { 
+        restrictPasswordInput(this); 
+      });
+      regPassword.addEventListener('blur', function() { 
+        validatePassword(this); 
+      });
+      regPassword.addEventListener('paste', function(e) {
+        e.preventDefault();
+        let pastedText = e.clipboardData.getData('text');
+        pastedText = pastedText.slice(0, 15);
+        this.value = pastedText;
+        validatePassword(this);
+      });
+    }
+  }
+
   // ========== CHECK FOR GOOGLE OAUTH CALLBACK ==========
   function handleOAuthCallback() {
     const params = new URLSearchParams(window.location.search);
@@ -26,13 +359,10 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
         
-        // Clean up URL
         window.history.replaceState({}, document.title, '/auth.html');
         
-        // Show success message
         showMessage(`Welcome ${user.name}! Successfully logged in with Google.`, 'success');
         
-        // Redirect to home page after 2 seconds
         setTimeout(() => {
           window.location.href = '/';
         }, 2000);
@@ -49,7 +379,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const user = localStorage.getItem('user');
     
     if (token && user) {
-      // User is logged in, show message and redirect
       const userData = JSON.parse(user);
       showMessage(`Already logged in as ${userData.name}. Redirecting...`, 'info');
       setTimeout(() => {
@@ -66,7 +395,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ========== SHOW MESSAGE FUNCTION ==========
   function showMessage(message, type = 'info') {
-    // Remove any existing message
     const existingMsg = document.querySelector('.auth-message');
     if (existingMsg) {
       existingMsg.remove();
@@ -134,39 +462,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ========== ADD ANIMATION STYLES ==========
   function addAnimationStyles() {
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes slideIn {
-        from { transform: translateY(-50px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-      }
-      @keyframes slideOut {
-        from { transform: translateY(0); opacity: 1; }
-        to { transform: translateY(-50px); opacity: 0; }
-      }
-      @keyframes slideInRight {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-      }
-      @keyframes slideOutRight {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-      }
-      .hidden {
-        display: none !important;
-      }
-      button:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-    `;
-    document.head.appendChild(style);
+    if (!document.getElementById('auth-styles')) {
+      const style = document.createElement('style');
+      style.id = 'auth-styles';
+      style.textContent = `
+        @keyframes slideIn {
+          from { transform: translateY(-50px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+          from { transform: translateY(0); opacity: 1; }
+          to { transform: translateY(-50px); opacity: 0; }
+        }
+        @keyframes slideInRight {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOutRight {
+          from { transform: translateX(0); opacity: 1; }
+          to { transform: translateX(100%); opacity: 0; }
+        }
+        .hidden {
+          display: none !important;
+        }
+        button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      `;
+      document.head.appendChild(style);
+    }
   }
 
+  // ========== PASSWORD VISIBILITY TOGGLE ==========
+// ========== PASSWORD VISIBILITY TOGGLE ==========
+// Login password toggle
+const toggleLoginPwd = document.getElementById('toggleLoginPwd');
+if (toggleLoginPwd) {
+  toggleLoginPwd.addEventListener('click', () => {
+    const pwd = document.getElementById('password');
+    if (pwd) {
+      const type = pwd.type === 'password' ? 'text' : 'password';
+      pwd.type = type;
+      toggleLoginPwd.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+    }
+  });
+}
+
+// Register password toggle
+const toggleRegisterPwd = document.getElementById('toggleRegisterPwd');
+if (toggleRegisterPwd) {
+  toggleRegisterPwd.addEventListener('click', () => {
+    const rpwd = document.getElementById('rpassword');
+    if (rpwd) {
+      const type = rpwd.type === 'password' ? 'text' : 'password';
+      rpwd.type = type;
+      toggleRegisterPwd.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+    }
+  });
+}
   // ========== INITIAL CHECKS ==========
   addAnimationStyles();
   handleOAuthCallback();
   checkLoggedIn();
+  setupInputListeners();
 
   // ========== TOGGLE BETWEEN LOGIN AND REGISTER FORMS ==========
   if (showRegister) {
@@ -174,8 +533,8 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       e.stopPropagation();
       console.log('Show register clicked');
-      loginForm.classList.add('hidden');
-      registerForm.classList.remove('hidden');
+      if (loginForm) loginForm.classList.add('hidden');
+      if (registerForm) registerForm.classList.remove('hidden');
     });
   }
   
@@ -184,19 +543,8 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       e.stopPropagation();
       console.log('Show login clicked');
-      registerForm.classList.add('hidden');
-      loginForm.classList.remove('hidden');
-    });
-  }
-
-  // ========== PASSWORD VISIBILITY TOGGLE ==========
-  if (togglePwd) {
-    togglePwd.addEventListener('click', () => {
-      const pwd = document.getElementById('password');
-      if (!pwd) return;
-      const type = pwd.type === 'password' ? 'text' : 'password';
-      pwd.type = type;
-      togglePwd.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+      if (registerForm) registerForm.classList.add('hidden');
+      if (loginForm) loginForm.classList.remove('hidden');
     });
   }
 
@@ -218,18 +566,24 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       console.log('Login form submitted');
       
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
+      const email = document.getElementById('email');
+      const password = document.getElementById('password');
       const loginBtn = document.getElementById('loginBtn');
       
-      if (!email || !password) {
-        showMessage('Please enter email and password', 'error');
+      // Validate email and password
+      const isEmailValid = validateEmail(email);
+      const isPasswordValid = validatePassword(password);
+      
+      if (!isEmailValid || !isPasswordValid) {
+        showMessage('Please fix the errors in the form', 'error');
         return;
       }
       
-      console.log('Logging in with:', email);
+      const emailValue = email.value.trim();
+      const passwordValue = password.value;
       
-      // Disable button to prevent double submission
+      console.log('Logging in with:', emailValue);
+      
       loginBtn.disabled = true;
       loginBtn.textContent = 'Logging in...';
       
@@ -237,7 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const res = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({ email: emailValue, password: passwordValue })
         });
         
         console.log('Login response status:', res.status);
@@ -245,7 +599,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Login response data:', data);
         
         if (!res.ok) {
-          // Handle different error formats
           let errorMsg = 'Login failed';
           if (data && data.error) {
             errorMsg = data.error;
@@ -258,7 +611,6 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
         
-        // Successful login
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         
@@ -282,24 +634,27 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       console.log('Register form submitted');
       
-      const name = document.getElementById('rname').value.trim();
-      const email = document.getElementById('remail').value.trim();
-      const password = document.getElementById('rpassword').value;
+      const name = document.getElementById('rname');
+      const email = document.getElementById('remail');
+      const password = document.getElementById('rpassword');
       const registerBtn = document.getElementById('registerBtn');
       
-      if (!name || !email || !password) {
-        showMessage('Please fill all fields', 'error');
+      // Run all validations
+      const isNameValid = validateName(name);
+      const isEmailValid = validateEmail(email);
+      const isPasswordValid = validatePassword(password);
+      
+      if (!isNameValid || !isEmailValid || !isPasswordValid) {
+        showMessage('Please fix the errors in the form', 'error');
         return;
       }
       
-      if (password.length < 6) {
-        showMessage('Password must be at least 6 characters', 'error');
-        return;
-      }
+      const nameValue = name.value.trim();
+      const emailValue = email.value.trim();
+      const passwordValue = password.value;
       
-      console.log('Registering with:', { name, email });
+      console.log('Registering with:', { name: nameValue, email: emailValue });
       
-      // Disable button to prevent double submission
       registerBtn.disabled = true;
       registerBtn.textContent = 'Creating account...';
       
@@ -307,7 +662,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const res = await fetch('/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, password })
+          body: JSON.stringify({ 
+            name: nameValue, 
+            email: emailValue, 
+            password: passwordValue 
+          })
         });
         
         console.log('Register response status:', res.status);
@@ -315,7 +674,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Register response data:', data);
         
         if (!res.ok) {
-          // Handle different error formats
           let errorMsg = 'Registration failed';
           if (data && data.error) {
             errorMsg = data.error;
@@ -328,7 +686,6 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
         
-        // Successful registration
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         
@@ -343,15 +700,6 @@ document.addEventListener('DOMContentLoaded', () => {
         registerBtn.disabled = false;
         registerBtn.textContent = 'Create account';
       }
-    });
-  }
-
-  // ========== ADD FORGOT PASSWORD HANDLER ==========
-  const forgotLink = document.querySelector('.forgot');
-  if (forgotLink) {
-    forgotLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      showMessage('Password reset feature coming soon!', 'info');
     });
   }
 

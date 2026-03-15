@@ -8,12 +8,26 @@ body {
   background: #0b0f19; /* same dark navy background */
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";  
   color: white;
+
+  height: 100vh;
+  overflow: hidden;
+}
+
+@media(max-width:700px){
+
+  .result-box{
+    flex-direction:column;
+    max-width:520px;
+  }
+
 }
 
 /* ===== QUIZ SECTION ===== */
 .quiz-section {
   width: 100%;
   height: 100vh;
+  padding: 10px;
+  overflow: hidden;
   background: #0b0f19;
   display: flex;
   justify-content: center;
@@ -21,16 +35,17 @@ body {
 }
 
 /* ===== QUIZ BOX ===== */
-.quiz-box {
-  width: 520px;
-  background: #111827;
-  border-radius: 16px;
-  padding: 30px;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #1f2937;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
-  z-index: 100;
+.quiz-box{
+  width:100%;
+  max-width:520px;
+  min-height:420px;
+  background:#111827;
+  border-radius:16px;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  border:1px solid #1f2937;
+  box-shadow:0 10px 40px rgba(0,0,0,0.45);
 }
 
 .quiz-box h1 {
@@ -79,7 +94,7 @@ body {
   height: 100%;
   width: 100%;
   background: linear-gradient(90deg, #4CD4C0, #2EA8FF);
-  transition: width 1s linear, backgroun-0.4s ease;
+  transition: width 1s linear, background 0.4s ease;
 }
 
 /* ===== TIME ===== */
@@ -92,16 +107,24 @@ body {
 .question-text {
   font-size: 22px;
   font-weight: 600;
-  margin: 18px 0;
+  margin: 12px 0;
+  word-wrap: break-word;
+  line-height: 1.5;
 }
 
 /* ===== OPTIONS ===== */
+
+.option-list{
+  margin-bottom:10px;
+}
+
 .option-list .option {
-  padding: 14px;
+  padding: 10px;
+  line-height: 1.4;
   background: #1e2838;
   border: 1px solid #1f2937;
   border-radius: 12px;
-  font-size: 16px;
+  font-size: 15px;
   margin: 12px 0;
   cursor: pointer;
   color: #cfd4dc;
@@ -163,32 +186,50 @@ body {
 }
 
 /* ===== RESULT BOX ===== */
-.result-box {
-  position: absolute;
-  width: 520px;
-  background: #111827;
-  border-radius: 16px;
-  padding: 30px;
-  border: 1px solid #1f2937;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
-  text-align: center;
+.result-box{
+  position:absolute;
+  width:100%;
+  max-width:900px;   /* increased width for two columns */
 
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(0.9);
-  transition: 0.4s ease;
-  z-index: 200;
+  background:#111827;
+  border-radius:16px;
+  padding:25px;
+  border:1px solid #1f2937;
+  box-shadow:0 10px 40px rgba(0,0,0,0.45);
+
+  display:flex;           /* flex layout */
+  gap:30px;               /* space between left and right */
+  align-items:center;
+  justify-content:center;
+
+  opacity:0;
+  pointer-events:none;
+  transform:scale(0.9);
+  transition:0.4s ease;
+  z-index:200;
 }
 
-.result-box.active {
-  opacity: 1;
-  pointer-events: auto;
-  transform: scale(1);
+.result-box.active{
+  opacity:1;
+  pointer-events:auto;
+  transform:scale(1);
+}
+
+.result-left{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
+.result-right{
+  flex:1;
 }
 
 /* ===== RESULT TITLE ===== */
 .result-box h2 {
-  font-size: 42px;
+  font-size: 34px;
   font-weight: 800;
   margin-bottom: 20px;
   background: linear-gradient(90deg, #4CD4C0, #2EA8FF);
@@ -204,8 +245,8 @@ body {
 }
 
 .circular-progress {
-  width: 250px;
-  height: 250px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
   background: conic-gradient(#4CD4C0 0deg, rgba(255,255,255,0.1) 0deg);
   display: flex;
@@ -217,8 +258,8 @@ body {
 .circular-progress::before {
   content: "";
   position: absolute;
-  width: 210px;
-  height: 210px;
+  width: 170px;
+  height: 170px;
   background: #111827;
   border-radius: 50%;
 }
@@ -227,6 +268,28 @@ body {
   position: relative;
   font-size: 46px;
   font-weight: 700;
+}
+
+@media (max-width: 600px){
+
+  .quiz-box{
+    padding:20px;
+  }
+
+  .circular-progress{
+    width:180px;
+    height:180px;
+  }
+
+  .circular-progress::before{
+    width:150px;
+    height:150px;
+  }
+
+  .progress-value{
+    font-size:32px;
+  }
+
 }
 
 /* ===== SCORE TEXT ===== */
@@ -330,3 +393,10 @@ body {
   border-radius:8px;
   display:inline-block;
 }
+
+
+
+
+
+
+

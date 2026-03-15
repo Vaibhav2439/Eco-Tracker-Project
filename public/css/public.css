@@ -629,3 +629,11 @@ font-size: 16px;
 .nav{
   font-size: 20px;
 }
+select option {
+    padding: 12px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    background: #1e293b;
+    color: white;
+}

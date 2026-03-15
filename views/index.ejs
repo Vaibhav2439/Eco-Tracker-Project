@@ -24,7 +24,6 @@
             border-radius: 2px;
         }
         
-        /* Cool dropdown styling */
         .select-wrapper {
             position: relative;
             margin-bottom: 25px;
@@ -67,7 +66,6 @@
             outline: none;
         }
         
-        /* Custom dropdown arrow */
         .select-wrapper::after {
             content: '\f078';
             font-family: 'Font Awesome 6 Free';
@@ -88,7 +86,6 @@
             transform: translateY(-50%) rotate(180deg);
         }
         
-        /* Cool input styling */
         input {
             background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
             border: 2px solid rgba(74, 222, 128, 0.2);
@@ -107,7 +104,6 @@
             box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
         }
         
-        /* Quantity input with unit selector */
         .quantity-container {
             display: flex;
             gap: 10px;
@@ -165,47 +161,6 @@
             pointer-events: none;
         }
         
-        /* Food option icons in dropdown */
-        select option {
-            padding: 12px;
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            background: #1e293b;
-            color: white;
-        }
-        
-        /* Glow button enhancement */
-        .glow-btn {
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-        
-        .glow-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s ease;
-            z-index: -1;
-        }
-        
-        .glow-btn:hover::before {
-            left: 100%;
-        }
-        
-        /* Food icon colors */
-        .food-icon-dairy { color: #f1c40f; }
-        .food-icon-plant { color: #2ecc71; }
-        .food-icon-chicken { color: #e67e22; }
-        .food-icon-packaged { color: #95a5a6; }
-        .food-icon-beverages { color: #3498db; }
-        
-        /* Info tooltip */
         .info-tooltip {
             color: #b0c4d9;
             font-size: 12px;
@@ -213,6 +168,23 @@
             margin-bottom: 15px;
             display: block;
             font-style: italic;
+        }
+        
+        .error-message {
+            color: #ff6b6b;
+            font-size: 12px;
+            margin-top: -20px;
+            margin-bottom: 15px;
+            display: block;
+            font-weight: 500;
+        }
+        
+        .valid-field {
+            border-color: var(--accent1) !important;
+        }
+        
+        .invalid-field {
+            border-color: #ff6b6b !important;
         }
     </style>
 </head>
@@ -225,13 +197,13 @@
     <p class="hero-sub">Track. Reduce. Improve.</p>
 </section>
 
-<form action="/calculate" method="POST" class="big-card fade-in">
+<form action="/calculate" method="POST" class="big-card fade-in" id="carbonForm">
     <h2 class="form-title">Enter Your Daily Activity</h2>
 
     <label>🚗 Travel Type</label>
     <div class="select-wrapper">
         <i class="fas fa-car"></i>
-        <select name="travelType" required>
+        <select name="travelType" id="travelType" required>
             <option value="" disabled selected>Select travel mode</option>
             <option value="car">🚗 Car</option>
             <option value="bus">🚌 Bus</option>
@@ -239,12 +211,15 @@
             <option value="walk">🚶 Walk</option>
         </select>
     </div>
+    <span class="error-message" id="travelTypeError"></span>
 
     <label>📏 Distance Travelled (km)</label>
-    <input type="number" name="distance" placeholder="e.g., 15" step="0.1" min="0" value="10" required>
+    <input type="number" name="distance" id="distance" placeholder="e.g., 15" step="0.1" min="0" max="99999" value="10" required>
+    <span class="error-message" id="distanceError"></span>
 
     <label>⚡ Electricity Used (kWh)</label>
-    <input type="number" name="electricity" placeholder="e.g., 7.5" step="0.1" min="0" value="5" required>
+    <input type="number" name="electricity" id="electricity" placeholder="e.g., 7.5" step="0.1" min="0" max="99999" value="5" required>
+    <span class="error-message" id="electricityError"></span>
 
     <label>🍖 Food Type</label>
     <div class="select-wrapper">
@@ -258,11 +233,12 @@
             <option value="beverages">🥤 Beverages (Soda, Juice, Coffee)</option>
         </select>
     </div>
+    <span class="error-message" id="foodTypeError"></span>
 
     <label>⚖️ Quantity</label>
     <div class="quantity-container">
         <div class="quantity-input-wrapper">
-            <input type="number" name="foodQuantity" id="foodQuantity" placeholder="e.g., 0.5" step="0.1" min="0" value="0.5" required>
+            <input type="number" name="foodQuantity" id="foodQuantity" placeholder="e.g., 0.5" step="0.1" min="0" max="99999" value="0.5" required>
         </div>
         <div class="unit-select-wrapper">
             <i class="fas fa-weight-scale" id="unitIcon"></i>
@@ -272,6 +248,7 @@
             </select>
         </div>
     </div>
+    <span class="error-message" id="foodQuantityError"></span>
     <span class="info-tooltip" id="unitTooltip">Enter the amount you consume daily</span>
 
     <button type="submit" class="glow-btn">
@@ -280,42 +257,43 @@
 </form>
 
 <script>
-    // Update unit based on food type selection
-    document.getElementById('foodType').addEventListener('change', function() {
-        const foodType = this.value;
-        const foodUnit = document.getElementById('foodUnit');
-        const unitIcon = document.getElementById('unitIcon');
-        const unitTooltip = document.getElementById('unitTooltip');
-        
-        if (foodType === 'beverages') {
-            foodUnit.value = 'litres';
-            unitIcon.className = 'fas fa-mug-hot';
-            unitTooltip.textContent = 'Enter the amount in litres you consume daily';
-        } else {
-            foodUnit.value = 'kg';
-            unitIcon.className = 'fas fa-weight-scale';
-            unitTooltip.textContent = 'Enter the amount in kg you consume daily';
-        }
-    });
-    
-    // Add cool animation to form fields
-    document.querySelectorAll('input, select').forEach(field => {
-        field.addEventListener('focus', function() {
-            this.closest('.select-wrapper, .quantity-input-wrapper, .unit-select-wrapper')?.style.transform = 'scale(1.02)';
-        });
-        
-        field.addEventListener('blur', function() {
-            this.closest('.select-wrapper, .quantity-input-wrapper, .unit-select-wrapper')?.style.transform = 'scale(1)';
-        });
-    });
-    
-    // Set default values
-    window.addEventListener('load', function() {
-        document.getElementById('foodQuantity').value = '0.5';
-    });
+
+document.addEventListener('DOMContentLoaded', function() {
+
+function limitDigits(inputId,errorId){
+
+const input=document.getElementById(inputId)
+
+input.addEventListener("input",function(){
+
+let val=this.value.replace(".","")
+
+if(val.length>5){
+
+this.value=this.value.slice(0,5)
+
+document.getElementById(errorId).textContent="Maximum 5 digits allowed"
+
+}else{
+
+document.getElementById(errorId).textContent=""
+
+}
+
+})
+
+}
+
+limitDigits("distance","distanceError")
+limitDigits("electricity","electricityError")
+limitDigits("foodQuantity","foodQuantityError")
+
+})
+
 </script>
 
 <script src="/js/theme.js"></script>
 <script src="/js/main.js"></script>
+
 </body>
 </html>

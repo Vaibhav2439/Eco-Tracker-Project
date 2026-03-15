@@ -2,82 +2,1178 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  <link rel="stylesheet" href="./css/GM.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>EcoQuiz – Test Your Green Knowledge</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    /* ===== GLOBAL ===== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #0a0f1e 0%, #0b1525 100%);
+      font-family: 'Poppins', 'Inter', system-ui, -apple-system, sans-serif;
+      color: #e9fbff;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 30%, rgba(76, 212, 192, 0.03) 0%, transparent 30%),
+                  radial-gradient(circle at 80% 70%, rgba(46, 168, 255, 0.03) 0%, transparent 30%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .quiz-section {
+      width: 100%;
+      height: 100vh;
+      padding: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+      overflow: hidden;
+    }
+
+    .container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+
+    /* ===== QUIZ BOX ===== */
+    .quiz-box {
+      width: 100%;
+      max-width: 550px;
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 24px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(76, 212, 192, 0.15);
+      box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.6);
+      position: relative;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .quiz-box h1 {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #4CD4C0, #2EA8FF);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: 0.5px;
+    }
+
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(76, 212, 192, 0.2);
+    }
+
+    .quiz-header span {
+      font-size: 14px;
+      color: #a0b8cc;
+      font-weight: 500;
+    }
+
+    .header-score {
+      background: linear-gradient(90deg, #4CD4C0, #2EA8FF);
+      color: #0a141c;
+      padding: 5px 12px;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: 0 4px 10px rgba(76, 212, 192, 0.2);
+    }
+
+    .progress-container {
+      width: 100%;
+      height: 6px;
+      background: rgba(31, 41, 55, 0.6);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 15px 0 8px;
+    }
+
+    #progress-bar {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #4CD4C0, #2EA8FF);
+      transition: width 1s linear;
+      border-radius: 10px;
+    }
+
+    .time-container {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 4px 12px;
+      border-radius: 30px;
+      width: fit-content;
+      margin-bottom: 10px;
+      border: 1px solid rgba(76, 212, 192, 0.2);
+      font-size: 14px;
+    }
+
+    .time-container i {
+      color: #4CD4C0;
+      font-size: 12px;
+    }
+
+    #time {
+      font-weight: 700;
+      color: #4ade80;
+      font-size: 16px;
+    }
+
+    .question-text {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 10px 0 12px;
+      word-wrap: break-word;
+      line-height: 1.4;
+      color: #ffffff;
+    }
+
+    .option-list {
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .option-list .option {
+      padding: 14px 16px;
+      line-height: 1.3;
+      background: rgba(30, 40, 56, 0.7);
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(76, 212, 192, 0.15);
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      color: #cfd4dc;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .option-list .option:hover {
+      background: rgba(76, 212, 192, 0.15);
+      border-color: #4CD4C0;
+      transform: translateX(3px);
+    }
+
+    .option.correct {
+      background: rgba(74, 222, 128, 0.2);
+      border-color: #4ade80;
+      color: #4ade80;
+    }
+
+    .option.incorrect {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #fca5a5;
+    }
+
+    .option.disabled {
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    .quiz-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(76, 212, 192, 0.2);
+      padding-top: 15px;
+      margin-top: 10px;
+    }
+
+    .question-total {
+      font-size: 14px;
+      color: #a0b8cc;
+      font-weight: 500;
+      background: rgba(0,0,0,0.2);
+      padding: 5px 12px;
+      border-radius: 30px;
+    }
+
+    .next-btn {
+      padding: 10px 22px;
+      border-radius: 40px;
+      border: none;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      background: linear-gradient(90deg, #4CD4C0, #2EA8FF);
+      color: #0a141c;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(76, 212, 192, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .next-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(76, 212, 192, 0.4);
+    }
+
+    .next-btn:active {
+      transform: translateY(0);
+    }
+
+    .next-btn.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    /* ===== RESULT BOX ===== */
+    .result-box {
+      position: absolute;
+      width: 95%;
+      max-width: 900px;
+      background: rgba(17, 24, 39, 0.95);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border-radius: 24px;
+      padding: 20px;
+      border: 1px solid rgba(76, 212, 192, 0.2);
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.9);
+      transition: 0.3s ease;
+      z-index: 200;
+      max-height: 90vh;
+    }
+
+    .result-box.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    @media (min-width: 768px) {
+      .result-box {
+        flex-direction: row;
+        padding: 30px;
+      }
+      
+      .result-left {
+        flex: 1;
+        border-right: 1px solid rgba(76, 212, 192, 0.2);
+        padding-right: 25px;
+        overflow-y: auto;
+        max-height: 70vh;
+      }
+      
+      .result-right {
+        flex: 1;
+        padding-left: 25px;
+        overflow-y: auto;
+        max-height: 70vh;
+        padding-right: 5px;
+      }
+      
+      /* Custom scrollbar */
+      .result-right::-webkit-scrollbar {
+        width: 6px;
+      }
+      
+      .result-right::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.05);
+        border-radius: 10px;
+      }
+      
+      .result-right::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #4CD4C0, #2EA8FF);
+        border-radius: 10px;
+      }
+    }
+
+    .result-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .result-box h2 {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, #4CD4C0, #2EA8FF);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      text-align: center;
+    }
+
+    .percentage-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .circular-progress {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: conic-gradient(#4CD4C0 0deg, rgba(255,255,255,0.05) 0deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.4s linear;
+      box-shadow: 0 10px 20px rgba(76, 212, 192, 0.2);
+    }
+
+    .circular-progress::before {
+      content: "";
+      position: absolute;
+      width: 130px;
+      height: 130px;
+      background: #111827;
+      border-radius: 50%;
+    }
+
+    .progress-value {
+      position: relative;
+      font-size: 36px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #4CD4C0, #2EA8FF);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      z-index: 10;
+    }
+
+    .score-text {
+      margin: 15px 0 10px;
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      text-align: center;
+      background: rgba(76, 212, 192, 0.2);
+      padding: 8px 20px;
+      border-radius: 40px;
+      display: inline-block;
+    }
+
+    /* Points earned */
+    .points-earned {
+      margin: 10px 0;
+      font-size: 18px;
+      background: linear-gradient(135deg, #4CD4C0, #2EA8FF);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ===== BACK BUTTON ===== */
+    .back-btn-container {
+      margin-top: 15px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(76, 212, 192, 0.3);
+      border-radius: 50px;
+      color: #e9fbff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      backdrop-filter: blur(5px);
+      text-decoration: none;
+      width: fit-content;
+    }
+
+    .back-btn i {
+      font-size: 16px;
+      color: #4CD4C0;
+    }
+
+    .back-btn:hover {
+      background: rgba(76, 212, 192, 0.15);
+      border-color: #4CD4C0;
+      transform: translateX(-3px);
+    }
+
+    /* Streak container */
+    .streak-container {
+      margin: 10px 0 15px;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #ff9800, #ff5722);
+      color: white;
+      font-weight: bold;
+      border-radius: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 20px rgba(255, 87, 34, 0.4);
+      font-size: 16px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .streak-container i {
+      font-size: 20px;
+    }
+
+    #streak-count {
+      font-size: 22px;
+      margin-left: 5px;
+      background: rgba(255,255,255,0.2);
+      padding: 2px 8px;
+      border-radius: 30px;
+    }
+
+    /* Badge container */
+    .badge-container {
+      margin: 15px 0;
+      padding: 18px;
+      background: linear-gradient(135deg, rgba(76, 212, 192, 0.15), rgba(46, 168, 255, 0.15));
+      backdrop-filter: blur(5px);
+      border-radius: 20px;
+      border: 1px solid rgba(76, 212, 192, 0.3);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    .badge-container h3 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      color: #4CD4C0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #weekly-badge {
+      font-size: 24px;
+      font-weight: 800;
+      padding: 12px;
+      border-radius: 16px;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    /* Badge colors */
+    .badge-legend {
+      background: linear-gradient(135deg, #ffd700, #ffa500);
+      color: #1a1a1a;
+      box-shadow: 0 0 20px #ffd700;
+    }
+
+    .badge-hero {
+      background: linear-gradient(135deg, #c0c0c0, #e0e0e0);
+      color: #1a1a1a;
+      box-shadow: 0 0 20px #c0c0c0;
+    }
+
+    .badge-saver {
+      background: linear-gradient(135deg, #cd7f32, #b87333);
+      color: white;
+      box-shadow: 0 0 20px #cd7f32;
+    }
+
+    .badge-learner {
+      background: linear-gradient(135deg, #4CD4C0, #2EA8FF);
+      color: #0a141c;
+      box-shadow: 0 0 20px #4CD4C0;
+    }
+
+    .badge-beginner {
+      background: linear-gradient(135deg, #6c757d, #495057);
+      color: white;
+      box-shadow: 0 0 15px #6c757d;
+    }
+
+    /* Leaderboard */
+    .leaderboard-container {
+      margin-top: 15px;
+    }
+
+    .leaderboard-container h3 {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: #4CD4C0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .leader-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      margin: 8px 0;
+      border-radius: 16px;
+      color: white;
+      background: rgba(0, 198, 255, 0.1);
+      border: 1px solid rgba(76, 212, 192, 0.2);
+      font-size: 15px;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: slideUp 0.4s forwards;
+    }
+
+    .leader-item.top-1 {
+      background: linear-gradient(90deg, rgba(255, 215, 0, 0.3), rgba(255, 215, 0, 0.1));
+      border-color: gold;
+      border-width: 2px;
+    }
+
+    .leader-item.top-2 {
+      background: linear-gradient(90deg, rgba(192, 192, 192, 0.3), rgba(192, 192, 192, 0.1));
+      border-color: silver;
+      border-width: 2px;
+    }
+
+    .leader-item.top-3 {
+      background: linear-gradient(90deg, rgba(205, 127, 50, 0.3), rgba(205, 127, 50, 0.1));
+      border-color: #cd7f32;
+      border-width: 2px;
+    }
+
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.3);
+      margin-right: 10px;
+      font-weight: 800;
+    }
+
+    .top-1 .rank-badge {
+      background: gold;
+      color: #1a1a1a;
+    }
+
+    .top-2 .rank-badge {
+      background: silver;
+      color: #1a1a1a;
+    }
+
+    .top-3 .rank-badge {
+      background: #cd7f32;
+      color: white;
+    }
+
+    .player-name {
+      flex: 1;
+    }
+
+    .player-score {
+      font-weight: 700;
+      background: rgba(255,255,255,0.1);
+      padding: 4px 10px;
+      border-radius: 30px;
+    }
+
+    @keyframes slideUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Current user highlight */
+    .current-user {
+      background: linear-gradient(90deg, rgba(76, 212, 192, 0.3), rgba(46, 168, 255, 0.2)) !important;
+      border-color: #4CD4C0 !important;
+      border-width: 2px !important;
+    }
+  </style>
 </head>
 <body>
   <header>
     <div class="container">
       <section class="quiz-section">
         <div class="quiz-box">
-          <h1>--Quiz --</h1>
+          <h1>🌱 EcoQuiz</h1>
           <div class="quiz-header">
+            <span><i class="far fa-star" style="margin-right: 5px; color: #4CD4C0;"></i>Test Your Knowledge</span>
             <span class="header-score">Score: 0 / 5</span>
           </div>
 
-      
+          <div class="progress-container">
+            <div id="progress-bar"></div>
+          </div>
 
-<div class="progress-container">
-  <div id="progress-bar"></div>
-</div>
-
-<div>Time: <span id="time">30</span>s</div>
-
+          <div class="time-container">
+            <i class="far fa-clock"></i>
+            <span>Time: <span id="time">30</span>s</span>
+          </div>
           
-          <h2 class="question-text">1. What does HTML stand for?</h2>
-          <div class="option-list">
-           <div class="option">
-              <span>A. Hyper Type Multi Language</span>
-            </div>
-            <div class="option">
-              <span>B. Hyper Text Multiple Language</span>
-            </div>
-            <div class="option">
-              <span>C. Hyper Text Markup Language</span>
-            </div>
-            <div class="option">
-              <span>D. Home Text Multi Language</span>
-            </div>
-          </div> 
+          <h2 class="question-text" id="question-text">1. What does carbon footprint mean?</h2>
+          <div class="option-list" id="option-list"></div>
+          
           <div class="quiz-footer">
-            <span class="question-total">1 of 5 Queations</span>
-            <button class="next-btn" type="button">Next</button>
+            <span class="question-total" id="question-total">1 of 5 Questions</span>
+            <button class="next-btn" id="next-btn" type="button">Next <i class="fas fa-arrow-right" style="margin-left: 5px;"></i></button>
           </div>
         </div>
-        <div class="result-box">
-          <h2>Quiz Result!</h2>
-          <div class="percentage-container">
-            <div class="circular-progress">
-              <span class="progress-value">0%</span>
+        
+        <div class="result-box" id="result-box">
+          <div class="result-left">
+            <h2>Quiz Result</h2>
+            <div class="percentage-container">
+              <div class="circular-progress" id="circularProgress">
+                <span class="progress-value" id="progressValue">0%</span>
+              </div>
             </div>
-
-            <div class="score-text">Your Score 0 out of 5</div>
+            <div class="score-text" id="scoreText">Your Score 0 out of 5</div>
+            
+            <!-- Points Earned -->
+            <div class="points-earned">
+              <i class="fas fa-star" style="color: #4CD4C0;"></i> <span id="points-earned">0</span> Points Earned
+            </div>
+            
+            <!-- Back Button -->
+            <div class="back-btn-container">
+              <a href="/feature" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to features</span>
+              </a>
+            </div>
           </div>
 
-          <div class="badge-container">
-  <h3>🏅 Weekly Eco Badge</h3>
-  <p id="weekly-badge"></p>
-</div>
+          <div class="result-right">
+            <div class="streak-container">
+              <i class="fas fa-fire"></i>
+              Daily Streak: <span id="streak-count">0</span> days
+            </div>
 
-<div class="leaderboard-container">
-  <h3>🏆 Leaderboard</h3>
-  <div id="leaderboard"></div>
-</div>
+            <div class="badge-container">
+              <h3><i class="fas fa-medal"></i> Weekly Achievement</h3>
+              <div id="weekly-badge" class="badge-beginner">📘 Beginner</div>
+              <div style="margin-top: 10px; font-size: 14px; color: #a0b8cc;" id="badge-progress">0/100 points to next badge</div>
+            </div>
 
-<div class="streak-container">
-  🔥 Daily Streak: <span id="streak-count">0</span> days
-</div>
-
-          <div class="buttons">
-            <button class="tryAgain-btn">Try Again</button>
+            <div class="leaderboard-container">
+              <h3><i class="fas fa-trophy"></i> Leaderboard</h3>
+              <div id="leaderboard"></div>
+            </div>
           </div>
         </div>
       </section>
     </div>
   </header>
-  <script src="/js/questions.js"></script>
-  <script src="/js/script.js"></script>
 
+  <script src="/js/questions.js"></script>
+  <script>
+    // Quiz state
+    let questionCount = 0;
+    let questionNumb = 1;
+    let userScore = 0;
+    let timeLeft = 30;
+    let timerId = null;
+    let answered = false;
+    const TOTAL_TIME = 30;
+    const TOTAL_QUESTIONS = 5;
+
+    // Points system
+    let currentQuizPoints = 0;
+    const POINTS_PER_CORRECT = 10;
+
+    // Get current user from localStorage (set during login)
+    function getCurrentUser() {
+      const userJson = localStorage.getItem('user');
+      if (userJson) {
+        try {
+          return JSON.parse(userJson);
+        } catch (e) {
+          return null;
+        }
+      }
+      return null;
+    }
+
+    const currentUser = getCurrentUser();
+    const username = currentUser ? (currentUser.name || currentUser.email || 'User') : 'Guest';
+
+    // Get elements
+    const quizBox = document.querySelector('.quiz-box');
+    const nextBtn = document.getElementById('next-btn');
+    const optionList = document.getElementById('option-list');
+    const questionText = document.getElementById('question-text');
+    const questionTotal = document.getElementById('question-total');
+    const headerScore = document.querySelector('.header-score');
+    const resultBox = document.getElementById('result-box');
+    const progressValue = document.getElementById("progressValue");
+    const circularProgress = document.getElementById("circularProgress");
+    const scoreText = document.getElementById("scoreText");
+    const pointsEarned = document.getElementById("points-earned");
+    const timeEl = document.getElementById("time");
+    const progressBar = document.getElementById("progress-bar");
+    const streakCount = document.getElementById("streak-count");
+    const weeklyBadge = document.getElementById("weekly-badge");
+    const badgeProgress = document.getElementById("badge-progress");
+    const leaderboardEl = document.getElementById("leaderboard");
+
+    // ===== DAILY QUESTIONS LOGIC =====
+    let quizQuestions = [];
+
+    function getDailyQuestions() {
+      // Check if questions array exists from questions.js
+      if (typeof questions === 'undefined') {
+        console.error('Questions not loaded');
+        return false;
+      }
+      
+      const today = new Date().toDateString();
+      const saved = localStorage.getItem('dailyQuizQuestions');
+      
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.date === today) {
+          quizQuestions = data.questions;
+          return true;
+        }
+      }
+      
+      // Shuffle and pick 5 random questions
+      const shuffled = [...questions].sort(() => 0.5 - Math.random());
+      quizQuestions = shuffled.slice(0, 5);
+      
+      // Save for today
+      localStorage.setItem('dailyQuizQuestions', JSON.stringify({
+        date: today,
+        questions: quizQuestions
+      }));
+      
+      return true;
+    }
+
+    // Initialize
+    function init() {
+      getDailyQuestions();
+      showQuestions(0);
+      questionCounter(1);
+      loadUserData();
+    }
+
+    // Get user-specific storage key
+    function getUserStorageKey() {
+      return currentUser ? `ecoQuiz_${currentUser.email || currentUser.id || 'user'}` : 'ecoQuiz_Guest';
+    }
+
+    // Load user data from localStorage (per user)
+    function loadUserData() {
+      const storageKey = getUserStorageKey();
+      const userData = JSON.parse(localStorage.getItem(storageKey)) || {
+        totalPoints: 0,
+        streak: 0,
+        lastPlayed: null,
+        history: []
+      };
+      
+      // Update streak first
+      updateStreak();
+      
+      // Then load other data
+      document.getElementById('streak-count').textContent = userData.streak || 0;
+      
+      updateLeaderboard();
+      updateWeeklyBadge();
+    }
+
+    // Save user data
+    function saveUserData(additionalPoints = 0) {
+      const storageKey = getUserStorageKey();
+      const userData = JSON.parse(localStorage.getItem(storageKey)) || {
+        totalPoints: 0,
+        streak: 0,
+        lastPlayed: null,
+        history: []
+      };
+      
+      userData.totalPoints = (userData.totalPoints || 0) + additionalPoints;
+      
+      // Update streak
+      const today = new Date().toDateString();
+      const yesterday = new Date(Date.now() - 86400000).toDateString();
+      
+      if (userData.lastPlayed === today) {
+        // Already played today
+      } else if (userData.lastPlayed === yesterday) {
+        userData.streak = (userData.streak || 0) + 1;
+      } else {
+        userData.streak = 1;
+      }
+      
+      userData.lastPlayed = today;
+      
+      // Add to history
+      userData.history.push({
+        date: today,
+        score: userScore,
+        points: additionalPoints
+      });
+      
+      localStorage.setItem(storageKey, JSON.stringify(userData));
+      document.getElementById('streak-count').textContent = userData.streak || 0;
+      
+      return userData;
+    }
+
+    // Update streak
+    function updateStreak() {
+      const storageKey = getUserStorageKey();
+      const userData = JSON.parse(localStorage.getItem(storageKey)) || {
+        streak: 0,
+        lastPlayed: null
+      };
+      
+      document.getElementById('streak-count').textContent = userData.streak || 0;
+    }
+
+    // ===== FUNCTION TO SET QUIZ COMPLETION FOR FEATURE PAGE =====
+    function setQuizCompletedToday() {
+      // Get current user
+      const userJson = localStorage.getItem('user');
+      if (userJson) {
+        try {
+          const user = JSON.parse(userJson);
+          const userId = user.email || user.id || 'user';
+          // Set per-user quiz completion
+          localStorage.setItem(`quizCompleted_${userId}`, new Date().toDateString());
+          console.log(`Quiz completed for user: ${userId}`);
+        } catch (e) {
+          // Fallback for guest
+          localStorage.setItem('quizCompleted_guest', new Date().toDateString());
+        }
+      } else {
+        // Guest user
+        localStorage.setItem('quizCompleted_guest', new Date().toDateString());
+      }
+    }
+
+    // Update weekly badge based on user's total points
+    function updateWeeklyBadge() {
+      const storageKey = getUserStorageKey();
+      const userData = JSON.parse(localStorage.getItem(storageKey)) || { totalPoints: 0 };
+      const points = userData.totalPoints || 0;
+      const badgeEl = document.getElementById('weekly-badge');
+      const progressEl = document.getElementById('badge-progress');
+      
+      let badgeText = '';
+      let badgeClass = '';
+      let nextBadgeName = '';
+      let pointsNeeded = 0;
+      
+      if (points >= 300) {
+        badgeText = '👑 Grandmaster';
+        badgeClass = 'badge-legend';
+        nextBadgeName = 'Grandmaster';
+        pointsNeeded = 0;
+      } else if (points >= 200) {
+        badgeText = '🥈 Elite';
+        badgeClass = 'badge-hero';
+        nextBadgeName = 'Grandmaster';
+        pointsNeeded = 300 - points;
+      } else if (points >= 150) {
+        badgeText = '🥉 Expert';
+        badgeClass = 'badge-saver';
+        nextBadgeName = 'Elite';
+        pointsNeeded = 200 - points;
+      } else if (points >= 50) {
+        badgeText = '⭐ Rising Star';
+        badgeClass = 'badge-learner';
+        nextBadgeName = 'Expert';
+        pointsNeeded = 150 - points;
+      } else {
+        badgeText = '📘 BEGINNER';
+        badgeClass = 'badge-beginner';
+        nextBadgeName = 'Rising Star';
+        pointsNeeded = 50 - points;
+      }
+      
+      badgeEl.textContent = badgeText;
+      badgeEl.className = badgeClass;
+      
+      // Show progress to next badge
+      if (points < 300) {
+        progressEl.textContent = `${pointsNeeded} more points to reach ${nextBadgeName}`;
+      } else {
+        progressEl.textContent = 'Maximum badge achieved! 🏆';
+      }
+    }
+    
+    // Update leaderboard with real users
+    function updateLeaderboard() {
+      const leaderboardEl = document.getElementById('leaderboard');
+      
+      // Get current user
+      const currentUser = getCurrentUser();
+      const currentUserName = currentUser ? (currentUser.name || 'User') : 'Guest';
+      const currentUserEmail = currentUser ? currentUser.email : 'guest@example.com';
+      
+      // Get all users from localStorage
+      let allUsers = [];
+      
+      // Get current user data
+      const currentUserKey = getUserStorageKey();
+      const currentUserData = JSON.parse(localStorage.getItem(currentUserKey)) || { totalPoints: 0 };
+      
+      // Get all localStorage keys that start with 'ecoQuiz_'
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('ecoQuiz_')) {
+          try {
+            const userData = JSON.parse(localStorage.getItem(key));
+            
+            // Extract clean username
+            let displayName = 'User';
+            const emailPart = key.replace('ecoQuiz_', '');
+            
+            if (emailPart === 'Guest') {
+              displayName = 'Guest';
+            } else if (currentUser && key === currentUserKey) {
+              // For current user, use their actual name if available
+              displayName = currentUser.name || emailPart.split('@')[0] || 'You';
+            } else {
+              // For other users, show first part of email or a friendly name
+              displayName = emailPart.split('@')[0] || 'EcoPlayer';
+              // Capitalize first letter
+              displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1).toLowerCase();
+            }
+            
+            allUsers.push({
+              name: displayName,
+              points: userData.totalPoints || 0,
+              isCurrentUser: key === currentUserKey,
+              rawEmail: emailPart
+            });
+          } catch (e) {
+            console.log('Error parsing user data');
+          }
+        }
+      }
+      
+      // If no users found, add current user
+      if (allUsers.length === 0) {
+        allUsers.push({
+          name: currentUserName,
+          points: currentUserData.totalPoints || 0,
+          isCurrentUser: true
+        });
+      }
+      
+      // Sort by points (highest first)
+      allUsers.sort((a, b) => b.points - a.points);
+      
+      // Show top players
+      leaderboardEl.innerHTML = '';
+      allUsers.slice(0, 5).forEach((user, index) => {
+        const div = document.createElement('div');
+        div.className = `leader-item top-${index + 1}`;
+        if (user.isCurrentUser) {
+          div.classList.add('current-user');
+        }
+        div.style.animationDelay = index * 0.1 + 's';
+        
+        const rankSymbol = index === 0 ? '👑' : index === 1 ? '🥈' : index === 2 ? '🥉' : '#' + (index + 1);
+        
+        div.innerHTML = `
+          <div style="display: flex; align-items: center; width: 100%;">
+            <span class="rank-badge">${rankSymbol}</span>
+            <span class="player-name">${user.name} ${user.isCurrentUser ? '(You)' : ''}</span>
+            <span class="player-score">${user.points} pts</span>
+          </div>
+        `;
+        
+        leaderboardEl.appendChild(div);
+      });
+    }
+    
+    // Show questions
+    function showQuestions(index) {
+      questionText.textContent = `${index + 1}. ${quizQuestions[index].question}`;
+      
+      optionList.innerHTML = "";
+      quizQuestions[index].options.forEach(option => {
+        const optionDiv = document.createElement("div");
+        optionDiv.className = "option";
+        optionDiv.innerHTML = `<span>${option}</span>`;
+        optionDiv.onclick = () => optionSelected(optionDiv, option);
+        optionList.appendChild(optionDiv);
+      });
+
+      nextBtn.classList.add("disabled");
+      answered = false;
+      startTimer();
+    }
+
+    // Option selected
+    function optionSelected(element, selectedOption) {
+      if (answered) return;
+      
+      answered = true;
+      stopTimer();
+      
+      const correctAnswer = quizQuestions[questionCount].answer;
+      const options = optionList.children;
+      
+      if (selectedOption === correctAnswer) {
+        element.classList.add("correct");
+        userScore++;
+        currentQuizPoints += POINTS_PER_CORRECT;
+        headerScore.textContent = `Score: ${userScore} / ${TOTAL_QUESTIONS}`;
+      } else {
+        element.classList.add("incorrect");
+        for (let opt of options) {
+          if (opt.textContent.trim() === correctAnswer) {
+            opt.classList.add("correct");
+          }
+        }
+      }
+      
+      for (let opt of options) opt.classList.add("disabled");
+      nextBtn.classList.remove("disabled");
+    }
+
+    // Question counter
+    function questionCounter(index) {
+      questionTotal.textContent = `${index} of ${TOTAL_QUESTIONS} Questions`;
+    }
+
+    // Timer functions
+    function startTimer() {
+      stopTimer();
+      timeLeft = TOTAL_TIME;
+      
+      progressBar.style.width = "100%";
+      timeEl.textContent = timeLeft;
+      
+      timerId = setInterval(() => {
+        if (answered) return;
+        
+        timeLeft--;
+        timeEl.textContent = timeLeft;
+        progressBar.style.width = (timeLeft / TOTAL_TIME) * 100 + "%";
+        
+        if (timeLeft <= 0) {
+          answered = true;
+          stopTimer();
+          
+          setTimeout(() => {
+            if (questionCount < TOTAL_QUESTIONS - 1) {
+              questionCount++;
+              questionNumb++;
+              showQuestions(questionCount);
+              questionCounter(questionNumb);
+            } else {
+              showResult();
+            }
+          }, 500);
+        }
+      }, 1000);
+    }
+
+    function stopTimer() {
+      clearInterval(timerId);
+      timerId = null;
+    }
+
+    // Show result
+    function showResult() {
+      quizBox.style.display = 'none';
+      resultBox.classList.add('active');
+      
+      const scorePercent = Math.floor((userScore / TOTAL_QUESTIONS) * 100);
+      scoreText.textContent = `Your Score ${userScore} out of ${TOTAL_QUESTIONS}`;
+      pointsEarned.textContent = currentQuizPoints;
+      
+      // Save user data with points
+      saveUserData(currentQuizPoints);
+      
+      // Set quiz completed for feature page
+      setQuizCompletedToday();
+      
+      // Animate circular progress
+      let progress = 0;
+      circularProgress.style.background = `conic-gradient(#4CD4C0 0deg, rgba(255,255,255,0.05) 0deg)`;
+      
+      const interval = setInterval(() => {
+        progress++;
+        progressValue.textContent = `${progress}%`;
+        
+        // Calculate degrees for conic gradient
+        const degrees = progress * 3.6;
+        circularProgress.style.background = `conic-gradient(#4CD4C0 ${degrees}deg, rgba(255,255,255,0.05) 0deg)`;
+        
+        if (progress >= scorePercent) {
+          clearInterval(interval);
+        }
+      }, 20);
+      
+      // Update all displays
+      updateLeaderboard();
+      updateWeeklyBadge();
+    }
+
+    // Next button click
+    nextBtn.onclick = () => {
+      if (nextBtn.classList.contains("disabled")) return;
+      
+      if (questionCount < TOTAL_QUESTIONS - 1) {
+        questionCount++;
+        questionNumb++;
+        showQuestions(questionCount);
+        questionCounter(questionNumb);
+      } else {
+        stopTimer();
+        showResult();
+      }
+    };
+
+    // Initialize on load
+    window.addEventListener('load', init);
+  </script>
 </body>
 </html>

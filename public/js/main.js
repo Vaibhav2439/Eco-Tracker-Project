@@ -53,7 +53,7 @@ function showLoggedOutNavbar() {
   
   authNavButtons.innerHTML = `
     <a class="btn small ghost" href="./auth.html?mode=login">Login</a>
-    <a class="btn small primary" href="./auth.html?mode=register">Sign Up</a>
+    <a class="btn small primary" href="./Registration.html?mode=register">Sign Up</a>
   `;
 }
 

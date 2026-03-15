@@ -235,6 +235,8 @@ function setGauge() {
 }
 
 /* Chart */
+/* Chart */
+/* Chart */
 function initChart() {
   if (!footprintCanvas) return;
   const ctx = footprintCanvas.getContext('2d');
@@ -245,28 +247,81 @@ function initChart() {
   footprintChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
       datasets: [{
         data: footprintData.slice(),
         fill: true,
         borderColor: grad,
         backgroundColor: 'rgba(18,214,255,0.06)',
         tension: 0.36,
-        pointRadius: 0,
-        borderWidth: 4
+        pointRadius: 0,           // No points by default
+        pointHoverRadius: 6,       // Small point on hover only
+        pointHoverBackgroundColor: '#18ff9c',
+        pointHoverBorderColor: 'transparent',
+        borderWidth: 3
       }]
     },
     options: {
       responsive: true,
-      plugins: { legend: { display: false } },
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: true,
+          mode: 'index',
+          intersect: false,
+          backgroundColor: 'rgba(3,18,26,0.95)',
+          titleColor: '#e9fbff',
+          bodyColor: '#18ff9c',
+          borderColor: '#18ff9c',
+          borderWidth: 2,
+          padding: 10,
+          cornerRadius: 6,
+          titleFont: {
+            size: 13,
+            weight: '500',
+            family: 'Poppins'
+          },
+          bodyFont: {
+            size: 15,
+            weight: '600',
+            family: 'Poppins'
+          },
+          callbacks: {
+            label: function(context) {
+              return context.parsed.y.toFixed(2) + ' kg CO₂';
+            },
+            title: function(context) {
+              return context[0].label;
+            }
+          }
+        }
+      },
       scales: {
-        x: { ticks: { color: '#9fb7c3' }, grid: { color: 'rgba(255,255,255,0.02)' } },
-        y: { ticks: { color: '#9fb7c3' }, grid: { color: 'rgba(255,255,255,0.02)' }, suggestedMin:1, suggestedMax:3.6 }
+        x: { 
+          ticks: { color: '#9fb7c3' }, 
+          grid: { display: false }
+        },
+        y: { 
+          ticks: { 
+            color: '#9fb7c3',
+            callback: function(value) {
+              return value + ' kg';
+            }
+          }, 
+          grid: { color: 'rgba(255,255,255,0.05)' }, 
+          min: 1.0,
+          max: 3.6
+        }
+      },
+      hover: {
+        mode: 'index',
+        intersect: false
       }
     }
   });
 }
-
+/* Apply activity - updates UI only */
 /* Apply activity - updates UI only */
 function applyActivityToUI(act) {
   if (!act) return;
@@ -276,6 +331,13 @@ function applyActivityToUI(act) {
   const sub = document.getElementById(idForType(act.type));
   if (sub) sub.textContent = `${act.value} ${act.unit || ''} • ${fmtTime(act.createdAt)}`;
 
+  // Get current day index (0 = Sunday, 1 = Monday, etc.)
+  const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+  
+  // Map Sunday (0) to index 6 for our chart (Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5, Sun=6)
+  let dayIndex = today === 0 ? 6 : today - 1;
+  
+  // Calculate delta based on activity type
   let delta = 0.05;
   if (act.type === 'Commute') delta = (Number(act.value) || 0) * 0.03;
   else if (act.type === 'Energy Usage') delta = (Number(act.value) || 0) * 0.18;
@@ -283,17 +345,23 @@ function applyActivityToUI(act) {
   else if (act.type === 'Recycling') delta = -(Number(act.value) || 0) * 0.1;
   else if (act.type === 'Waste Reduction') delta = (Number(act.value) || 0) * 0.05;
 
-  const last = footprintData[footprintData.length - 1] || 2.0;
-  footprintData.push(parseFloat((last + delta).toFixed(2)));
-  footprintData.shift();
+  // Update ONLY the current day's data point
+  footprintData[dayIndex] = parseFloat((footprintData[dayIndex] + delta).toFixed(2));
 
-  if (footprintChart) { footprintChart.data.datasets[0].data = footprintData.slice(); footprintChart.update(); }
+  // Ensure value stays within reasonable range
+  if (footprintData[dayIndex] < 1.0) footprintData[dayIndex] = 1.0;
+  if (footprintData[dayIndex] > 3.6) footprintData[dayIndex] = 3.6;
 
+  if (footprintChart) { 
+    footprintChart.data.datasets[0].data = footprintData.slice(); 
+    footprintChart.update(); 
+  }
+
+  // Update eco score
   let newScore = ecoScore - Math.round(delta * 4);
   if (delta < 0) newScore = ecoScore + Math.round((-delta) * 6);
   setGauge();
 }
-
 /* populate unit select with validation */
 function populateUnitSelect(type) {
   if (!activityUnit) return;
@@ -615,7 +683,7 @@ function completeGoal(goal) {
   showToast(`Goal complete! +${award} pts`);
 }
 
-/* Leaderboard rendering */
+/* Leaderboard rendering - FIXED with unique badges for top 3 */
 function renderLeaderboard(list) {
   const el = document.getElementById('leaderboard');
   if (!el) return;
@@ -697,26 +765,38 @@ function renderLeaderboard(list) {
     if (isDummy) li.classList.add('dummy-user');
     
     const left = document.createElement('div'); left.className = 'left';
-    const rank = document.createElement('div'); rank.className = 'rank-badge'; rank.textContent = String(idx + 1);
-    if (idx === 0) rank.classList.add('top1'); 
-    else if (idx === 1) rank.classList.add('top2'); 
-    else if (idx === 2) rank.classList.add('top3');
+    const rank = document.createElement('div'); rank.className = 'rank-badge'; 
+    
+    // Set unique badge for top 3
+    if (idx === 0) { 
+      rank.textContent = '🥇'; 
+      rank.classList.add('top1'); 
+    } else if (idx === 1) { 
+      rank.textContent = '🥈'; 
+      rank.classList.add('top2'); 
+    } else if (idx === 2) { 
+      rank.textContent = '🥉'; 
+      rank.classList.add('top3'); 
+    } else { 
+      rank.textContent = String(idx + 1); 
+    }
 
     const nameWrap = document.createElement('div'); nameWrap.style.display = 'flex'; nameWrap.style.alignItems = 'center'; nameWrap.style.gap = '8px';
     const name = document.createElement('div'); name.className = 'user-name'; name.textContent = u.name || 'Unknown';
 
-    if (idx === 0 && !isDummy) { 
+    // Add medals only for top 3 real users
+    if (idx === 0 && !isDummy && !isCurrentUser) { 
       const icon = document.createElement('span'); icon.className = 'medal'; icon.textContent = '🏆'; nameWrap.appendChild(icon); 
     }
-    else if (idx === 1 && !isDummy) { 
+    else if (idx === 1 && !isDummy && !isCurrentUser) { 
       const icon = document.createElement('span'); icon.className = 'medal'; icon.textContent = '🥈'; nameWrap.appendChild(icon); 
     }
-    else if (idx === 2 && !isDummy) { 
+    else if (idx === 2 && !isDummy && !isCurrentUser) { 
       const icon = document.createElement('span'); icon.className = 'medal'; icon.textContent = '🥉'; nameWrap.appendChild(icon); 
     }
     
     if (isDummy) {
-      const icon = document.createElement('span'); icon.className = 'dummy-icon'; icon.textContent = '🌱'; nameWrap.appendChild(icon);
+      const icon = document.createElement('span'); icon.className = 'dummy-icon'; icon.textContent = ''; nameWrap.appendChild(icon);
     }
     
     if (isCurrentUser) {
@@ -823,6 +903,33 @@ style.textContent = `
   .you-highlight-pdf .points-pill {
     background: rgba(3,34,22,0.2) !important;
     color: #ffffff !important;
+  }
+  
+  /* Rank badge styles */
+  .rank-badge.top1 {
+    background: linear-gradient(135deg, #ffd700, #ffb347) !important;
+    color: #1a1a1a !important;
+    font-weight: 900;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+  }
+  
+  .rank-badge.top2 {
+    background: linear-gradient(135deg, #c0c0c0, #e0e0e0) !important;
+    color: #1a1a1a !important;
+    font-weight: 900;
+    box-shadow: 0 0 15px rgba(192, 192, 192, 0.5);
+  }
+  
+  .rank-badge.top3 {
+    background: linear-gradient(135deg, #cd7f32, #b87333) !important;
+    color: #ffffff !important;
+    font-weight: 900;
+    box-shadow: 0 0 15px rgba(205, 127, 50, 0.5);
+  }
+  
+  .medal {
+    font-size: 16px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
   }
   
   /* Cool validation styles */
