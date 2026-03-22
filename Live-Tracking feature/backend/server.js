@@ -162,7 +162,7 @@ try {
 
   // ===== API ROUTES =====
   tryRegister('./routes/activities.route', '/api/activities', true);
-  tryRegister('./routes/leaderboard.route', '/api/leaderboard', false);
+  // tryRegister('./routes/leaderboard.route', '/api/leaderboard', false);
   
   // Mount auth routes directly
   const authRoutes = require('./routes/auth.route');
@@ -405,10 +405,6 @@ app.get('/recommendations', (req, res) => {
     console.log(`📧 Email ${transporter ? 'configured' : 'not configured'}`);
     console.log(`🔑 Google OAuth ${process.env.GOOGLE_CLIENT_ID ? 'configured' : 'NOT configured ⚠️'}`);
     console.log(`🍃 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`\n📋 Test these URLs:`);
-    console.log(`→ http://localhost:${PORT}/api/test`);
-    console.log(`→ http://localhost:${PORT}/api/auth/google`);
-    console.log(`→ http://localhost:${PORT}/auth.html`);
   });
 }
 

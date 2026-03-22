@@ -28,9 +28,212 @@ const toastEl = document.getElementById('toast');
 
 let footprintChart = null;
 let ecoScore = 80;
-let footprintData = [2.0, 2.4, 2.1, 1.8, 1.9, 2.0, 2.2];
+
+// Initialize footprint data - only past days have values
+function initializeFootprintData() {
+  const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const chartIndex = today === 0 ? 6 : today - 1; // Convert to chart index
+  
+  // Create array with null for all days
+  const newData = [null, null, null, null, null, null, null];
+  
+  // Fill past days with sample data (including today)
+  for (let i = 0; i <= chartIndex; i++) {
+    // Sample values: start at 2.0 on Monday, gradually increase
+    newData[i] = 2.0 + (i * 0.2);
+  }
+  
+  return newData;
+}
+
+let footprintData = initializeFootprintData();
 
 let socket = null;
+
+/* Week navigation for chart */
+let weekOffset = 0; // 0 = current week, -1 = previous week
+
+// Sample historical data for previous week
+const samplePreviousWeekData = [2.3, 2.1, 3.4, 2.0, 2.2, 1.8, 2.7];
+
+// Navigate to previous week
+function goToPreviousWeek() {
+  if (weekOffset === 0) {
+    weekOffset = -1;
+    loadPreviousWeekData();
+  }
+}
+
+// Navigate back to current week
+function goToCurrentWeek() {
+  if (weekOffset === -1) {
+    weekOffset = 0;
+    loadCurrentWeekData();
+  }
+}
+
+// Load current week data
+function loadCurrentWeekData() {
+  // Reset to original footprint data
+  footprintData = initializeFootprintData();
+  
+  // Update chart
+  if (footprintChart) {
+    footprintChart.data.datasets[0].data = footprintData.slice();
+    footprintChart.update();
+  }
+  
+  updateWeekIndicator();
+}
+
+// Load previous week data (dummy data)
+function loadPreviousWeekData() {
+  // Use sample data for previous week
+  footprintData = [...samplePreviousWeekData];
+  
+  // Update chart
+  if (footprintChart) {
+    footprintChart.data.datasets[0].data = footprintData.slice();
+    footprintChart.update();
+  }
+  
+  updateWeekIndicator();
+}
+
+function updateWeekIndicator() {
+  const indicator = document.getElementById('weekIndicator');
+  if (indicator) {
+    if (weekOffset === 0) {
+      indicator.textContent = 'This Week';
+    } else {
+      indicator.textContent = 'Previous Week';
+    }
+  }
+  
+  // Update button states
+  const prevBtn = document.getElementById('prevWeekBtn');
+  const nextBtn = document.getElementById('nextWeekBtn');
+  
+  if (prevBtn && nextBtn) {
+    if (weekOffset === 0) {
+      prevBtn.disabled = false;
+      prevBtn.classList.remove('disabled');
+      nextBtn.disabled = true;
+      nextBtn.classList.add('disabled');
+    } else {
+      prevBtn.disabled = true;
+      prevBtn.classList.add('disabled');
+      nextBtn.disabled = false;
+      nextBtn.classList.remove('disabled');
+    }
+  }
+}
+
+// Add week navigation controls to the DOM
+function addWeekNavigation() {
+  const chartCard = document.querySelector('.card-graph');
+  if (!chartCard) return;
+  
+  // Create navigation container
+  const navContainer = document.createElement('div');
+  navContainer.className = 'week-navigation';
+  navContainer.innerHTML = `
+    <button class="week-nav-btn" id="prevWeekBtn" title="Previous Week">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <span class="week-indicator" id="weekIndicator">This Week</span>
+    <button class="week-nav-btn" id="nextWeekBtn" title="Current Week" disabled>
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  `;
+  
+  // Insert at the top of the chart card
+  chartCard.insertBefore(navContainer, chartCard.firstChild);
+  
+  // Add event listeners
+  document.getElementById('prevWeekBtn').addEventListener('click', goToPreviousWeek);
+  document.getElementById('nextWeekBtn').addEventListener('click', goToCurrentWeek);
+}
+
+// Add CSS for week navigation (fix positioning)
+const navStyle = document.createElement('style');
+navStyle.textContent = `
+  .week-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 5px 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 40px;
+    width: fit-content;
+    margin-left: auto;
+    border: 1px solid rgba(60, 255, 154, 0.1);
+  }
+  
+  .week-nav-btn {
+    background: linear-gradient(145deg, rgba(60, 255, 154, 0.15), rgba(24, 255, 156, 0.05));
+    border: 1px solid rgba(60, 255, 154, 0.25);
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #3cff9a;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .week-nav-btn i {
+    font-size: 16px;
+    color: #3cff9a;
+  }
+  
+  .week-nav-btn:hover:not(:disabled) {
+    transform: scale(1.1);
+    background: linear-gradient(145deg, rgba(60, 255, 154, 0.25), rgba(24, 255, 156, 0.15));
+    border-color: #3cff9a;
+    box-shadow: 0 6px 15px rgba(60, 255, 154, 0.4);
+  }
+  
+  .week-nav-btn:hover:not(:disabled) i {
+    color: #fff;
+  }
+  
+  .week-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    filter: grayscale(0.7);
+  }
+  
+  .week-nav-btn:disabled:hover {
+    transform: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .week-indicator {
+    color: #a0b8cc;
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 90px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 5px 12px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    letter-spacing: 0.3px;
+  }
+  
+  /* Ensure chart card has proper positioning */
+  .card-graph {
+    position: relative;
+  }
+`;
+document.head.appendChild(navStyle);
 
 /* Get current user from localStorage */
 const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
@@ -84,11 +287,10 @@ const UNIT_MAP = {
 
 /* Dummy users data for leaderboard */
 const DUMMY_USERS = [
-  { name: 'Aakash', points: 140, isDummy: true },
-  { name: 'Yash', points: 250, isDummy: true },
+  { name: 'Aakash', points: 360, isDummy: true },
+  { name: 'Yash', points: 150, isDummy: true },
   { name: 'Sumit', points: 120, isDummy: true },
   { name: 'Judo Sloth', points: 100, isDummy: true },
-  
 ];
 
 /* Activity points mapping */
@@ -100,6 +302,9 @@ const ACTIVITY_POINTS = {
   'Waste Reduction': 15,
   'default': 5
 };
+
+/* Goal points per unit */
+const GOAL_POINTS_PER_UNIT = 2; // 2 points per unit of progress
 
 /* Prohibited goal keywords */
 const PROHIBITED_GOAL_KEYWORDS = [
@@ -235,8 +440,6 @@ function setGauge() {
 }
 
 /* Chart */
-/* Chart */
-/* Chart */
 function initChart() {
   if (!footprintCanvas) return;
   const ctx = footprintCanvas.getContext('2d');
@@ -254,11 +457,12 @@ function initChart() {
         borderColor: grad,
         backgroundColor: 'rgba(18,214,255,0.06)',
         tension: 0.36,
-        pointRadius: 0,           // No points by default
-        pointHoverRadius: 6,       // Small point on hover only
+        pointRadius: 0,
+        pointHoverRadius: 6,
         pointHoverBackgroundColor: '#18ff9c',
         pointHoverBorderColor: 'transparent',
-        borderWidth: 3
+        borderWidth: 3,
+        spanGaps: false
       }]
     },
     options: {
@@ -315,13 +519,13 @@ function initChart() {
         }
       },
       hover: {
-        mode: 'index',
-        intersect: false
+        mode: 'nearest',
+        intersect: true
       }
     }
   });
 }
-/* Apply activity - updates UI only */
+
 /* Apply activity - updates UI only */
 function applyActivityToUI(act) {
   if (!act) return;
@@ -331,13 +535,9 @@ function applyActivityToUI(act) {
   const sub = document.getElementById(idForType(act.type));
   if (sub) sub.textContent = `${act.value} ${act.unit || ''} • ${fmtTime(act.createdAt)}`;
 
-  // Get current day index (0 = Sunday, 1 = Monday, etc.)
-  const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
-  
-  // Map Sunday (0) to index 6 for our chart (Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5, Sun=6)
+  const today = new Date().getDay();
   let dayIndex = today === 0 ? 6 : today - 1;
-  
-  // Calculate delta based on activity type
+
   let delta = 0.05;
   if (act.type === 'Commute') delta = (Number(act.value) || 0) * 0.03;
   else if (act.type === 'Energy Usage') delta = (Number(act.value) || 0) * 0.18;
@@ -345,10 +545,12 @@ function applyActivityToUI(act) {
   else if (act.type === 'Recycling') delta = -(Number(act.value) || 0) * 0.1;
   else if (act.type === 'Waste Reduction') delta = (Number(act.value) || 0) * 0.05;
 
-  // Update ONLY the current day's data point
+  if (footprintData[dayIndex] === null) {
+    footprintData[dayIndex] = 2.0;
+  }
+
   footprintData[dayIndex] = parseFloat((footprintData[dayIndex] + delta).toFixed(2));
 
-  // Ensure value stays within reasonable range
   if (footprintData[dayIndex] < 1.0) footprintData[dayIndex] = 1.0;
   if (footprintData[dayIndex] > 3.6) footprintData[dayIndex] = 3.6;
 
@@ -357,11 +559,11 @@ function applyActivityToUI(act) {
     footprintChart.update(); 
   }
 
-  // Update eco score
   let newScore = ecoScore - Math.round(delta * 4);
   if (delta < 0) newScore = ecoScore + Math.round((-delta) * 6);
   setGauge();
 }
+
 /* populate unit select with validation */
 function populateUnitSelect(type) {
   if (!activityUnit) return;
@@ -375,7 +577,6 @@ function populateUnitSelect(type) {
     activityUnit.appendChild(op); 
   });
   
-  // Set validation attributes
   const unitInfo = UNIT_MAP[type];
   if (unitInfo) {
     activityValue.min = unitInfo.min || 0.1;
@@ -383,10 +584,8 @@ function populateUnitSelect(type) {
     activityValue.step = '0.1';
     activityValue.placeholder = `Enter value (${unitInfo.placeholder})`;
     
-    // Add input event listener to limit digits
     activityValue.addEventListener('input', limitDigits);
     
-    // Add visual indicator of allowed range
     const rangeHint = document.createElement('small');
     rangeHint.className = 'range-hint';
     rangeHint.textContent = `Allowed: ${unitInfo.min} - ${unitInfo.max} ${unitInfo.unit} (max 5 digits)`;
@@ -398,7 +597,6 @@ function populateUnitSelect(type) {
       font-style: italic;
     `;
     
-    // Remove old hint if exists
     const oldHint = document.querySelector('.range-hint');
     if (oldHint) oldHint.remove();
     
@@ -411,25 +609,20 @@ function limitDigits(e) {
   const input = e.target;
   let value = input.value;
   
-  // Remove any non-numeric characters except decimal point
   value = value.replace(/[^0-9.]/g, '');
   
-  // Split into integer and decimal parts
   const parts = value.split('.');
   
-  // Limit integer part to 5 digits
   if (parts[0].length > 5) {
     parts[0] = parts[0].slice(0, 5);
   }
   
-  // Limit decimal part to 1 digit
   if (parts.length > 1) {
     if (parts[1].length > 1) {
       parts[1] = parts[1].slice(0, 1);
     }
   }
   
-  // Reconstruct the value
   input.value = parts.join('.');
 }
 
@@ -448,11 +641,9 @@ function closeModal() {
   logModal.classList.add('hidden'); 
   delete logModal.dataset.type; 
   
-  // Remove range hint
   const oldHint = document.querySelector('.range-hint');
   if (oldHint) oldHint.remove();
   
-  // Remove input event listener
   activityValue.removeEventListener('input', limitDigits);
 }
 
@@ -461,7 +652,6 @@ function validateActivityValue(type, value) {
   const unitData = UNIT_MAP[type];
   if (!unitData) return { valid: true };
   
-  // Check if value exceeds 5 digits (integer part)
   const integerPart = Math.floor(Math.abs(value)).toString();
   if (integerPart.length > 5) {
     return { valid: false, message: 'Maximum 5 digits allowed' };
@@ -475,7 +665,6 @@ function validateActivityValue(type, value) {
     return { valid: false, message: `Value cannot exceed ${unitData.max}` };
   }
   
-  // Check decimal places (max 1 decimal)
   const decimalPlaces = (value.toString().split('.')[1] || '').length;
   if (decimalPlaces > 1) {
     return { valid: false, message: 'Only 1 decimal place allowed' };
@@ -497,7 +686,6 @@ async function submitActivity() {
     return; 
   }
   
-  // Validate value against limits
   const validation = validateActivityValue(type, val);
   if (!validation.valid) {
     showErrorToast(validation.message);
@@ -522,7 +710,6 @@ async function submitActivity() {
     createdAt: new Date().toISOString() 
   };
 
-  // Show loading state
   submitActivityBtn.disabled = true;
   submitActivityBtn.textContent = 'Saving...';
 
@@ -572,36 +759,68 @@ function addGoal() {
     return; 
   }
   
-  // Validate target digits (max 5 digits)
   const targetIntegerPart = Math.floor(Math.abs(target)).toString();
   if (targetIntegerPart.length > 5) {
     showGoalError('Target cannot exceed 5 digits');
     return;
   }
   
-  // Validate target value (reasonable limits)
   if (target > 1000) {
     showGoalError('Target too high! Maximum target is 1000');
     return;
   }
   
-  const hasProhibitedWord = PROHIBITED_GOAL_KEYWORDS.some(keyword => 
-    text.includes(keyword.toLowerCase())
-  );
-  
-  if (hasProhibitedWord) {
-    showGoalError('Please set an eco-friendly goal! No destructive activities allowed.');
+ // Enhanced prohibited keywords list with more destructive terms
+const PROHIBITED_GOAL_KEYWORDS = [
+  'destroy', 'kill', 'burn', 'cut', 'waste', 'pollute', 
+  'damage', 'harm', 'toxic', 'dump', 'litter', 'explode',
+  'deforest', 'extinct', 'poison', 'contaminate', 'break',
+  'smash', 'crush', 'demolish', 'ruin', 'devastate', 'ravage',
+  'slaughter', 'exterminate', 'annihilate', 'eradicate', 'obliterate',
+  'nuke', 'bomb', 'attack', 'hurt', 'injure', 'abuse',
+  'torture', 'torment', 'persecute', 'oppress', 'exploit'
+];
+
+// Check for prohibited destructive words
+const hasProhibitedWord = PROHIBITED_GOAL_KEYWORDS.some(keyword => 
+  text.includes(keyword.toLowerCase())
+);
+
+if (hasProhibitedWord) {
+  showGoalError('❌ Please set an eco-friendly goal! No destructive activities allowed.');
+  return;
+}
+
+// Check for positive eco-friendly keywords
+const positiveKeywords = [
+  'plant', 'save', 'reduce', 'recycle', 'conserve', 'protect', 
+  'clean', 'green', 'sustainable', 'eco', 'environment', 'nature',
+  'tree', 'garden', 'compost', 'reuse', 'repair', 'restore',
+  'preserve', 'nurture', 'cultivate', 'grow', 'harvest'
+];
+
+const hasPositiveWord = positiveKeywords.some(keyword => text.includes(keyword));
+
+if (!hasPositiveWord) {
+  if (!confirm('⚠️ This goal doesn\'t seem eco-friendly. Are you sure you want to set this goal?')) {
+    return;
+  }
+}
+
+// Specific validation for plastic-related goals
+const plasticKeywords = ['plastic', 'bag', 'bottle', 'packaging', 'straw', 'container'];
+const hasPlasticGoal = plasticKeywords.some(keyword => text.includes(keyword));
+
+if (hasPlasticGoal) {
+  // Validate that plastic reduction goals make sense
+  if (target > 100) {
+    showGoalError('🌍 Plastic reduction goal too high! Start with a realistic target (max 100)');
     return;
   }
   
-  const positiveKeywords = ['plant', 'save', 'reduce', 'recycle', 'conserve', 'protect', 'clean', 'green'];
-  const hasPositiveWord = positiveKeywords.some(keyword => text.includes(keyword));
-  
-  if (!hasPositiveWord) {
-    if (!confirm('This goal doesn\'t seem eco-friendly. Are you sure you want to set this goal?')) {
-      return;
-    }
-  }
+  // Optional: Show encouraging message for plastic reduction
+  showToast('👍 Great choice! Reducing plastic helps our oceans!');
+}
   
   const goals = loadGoals();
   const g = { 
@@ -650,40 +869,74 @@ function renderGoals(goals) {
   activeGoalsList.querySelectorAll('.update-goal').forEach(btn => {
     const id = btn.dataset.id;
     btn.addEventListener('click', () => {
-      const goals = loadGoals(); const g = goals.find(x => x.id === id); if (!g) return;
-      const remaining = Math.max(0, g.target - (g.progress || 0));
-      if (remaining <= 0) { completeGoal(g); renderGoals(loadGoals()); refreshLeaderboardFromLocal(); return; }
-      let entry = prompt(`Enter value to add (remaining ${remaining}):`, '1'); if (entry === null) return; entry = entry.trim(); if (!entry) return alert('Enter a number');
-      const num = Number(entry); if (!num || isNaN(num) || num <= 0) return alert('Enter a valid positive number');
+      const goals = loadGoals(); 
+      const g = goals.find(x => x.id === id); 
+      if (!g) return;
       
-      // Validate progress update
+      const remaining = Math.max(0, g.target - (g.progress || 0));
+      
+      if (remaining <= 0) { 
+        completeGoal(g); 
+        renderGoals(loadGoals()); 
+        refreshLeaderboardFromLocal(); 
+        return; 
+      }
+      
+      let entry = prompt(`Enter value to add (remaining ${remaining}):`, '1'); 
+      if (entry === null) return; 
+      entry = entry.trim(); 
+      if (!entry) return alert('Enter a number');
+      
+      const num = Number(entry); 
+      if (!num || isNaN(num) || num <= 0) return alert('Enter a valid positive number');
+      
+      // Calculate points for this progress update
+      let pointsToAdd = 0;
+      let progressToAdd = num;
+      
       if (num > remaining) {
         if (!confirm(`Value exceeds remaining target (${remaining}). Set to complete?`)) {
           return;
         }
+        progressToAdd = remaining;
+        pointsToAdd = remaining * GOAL_POINTS_PER_UNIT + 20; // Bonus for completion
         g.progress = g.target;
       } else {
+        progressToAdd = num;
+        pointsToAdd = num * GOAL_POINTS_PER_UNIT;
         g.progress = (g.progress || 0) + num;
       }
       
-      if (g.progress >= g.target) completeGoal(g);
-      saveGoals(goals); renderGoals(loadGoals()); refreshLeaderboardFromLocal();
+      // Award points for progress
+      if (pointsToAdd > 0) {
+        currentUserPoints += pointsToAdd;
+        saveUserPoints(currentUserPoints);
+        showToast(`+${Math.round(pointsToAdd)} points earned!`);
+      }
+      
+      if (g.progress >= g.target) {
+        completeGoal(g);
+      } else {
+        saveGoals(goals);
+      }
+      
+      renderGoals(loadGoals()); 
+      refreshLeaderboardFromLocal();
     });
   });
 }
+
 function completeGoal(goal) {
   const goals = loadGoals().filter(g => g.id !== goal.id);
   saveGoals(goals);
   
-  const award = 20;
-  currentUserPoints += award;
-  saveUserPoints(currentUserPoints);
+  // Note: Completion bonus is already added in the update function
+  // to avoid double-counting
   
   refreshLeaderboardFromLocal();
-  showToast(`Goal complete! +${award} pts`);
 }
 
-/* Leaderboard rendering - FIXED with unique badges for top 3 */
+/* Leaderboard rendering - FIXED with proper names */
 function renderLeaderboard(list) {
   const el = document.getElementById('leaderboard');
   if (!el) return;
@@ -696,6 +949,9 @@ function renderLeaderboard(list) {
   
   Object.entries(allUsersPoints).forEach(([key, points]) => {
     if (key.includes('-') || key === currentUserId) return;
+    
+    // Skip if it looks like an email or ID (contains @ or long hex)
+    if (key.includes('@') || key.length > 20) return;
     
     allEntries.push({
       name: key,
@@ -719,7 +975,7 @@ function renderLeaderboard(list) {
     list.forEach(user => {
       if (user.email && user.name) {
         const exists = allEntries.some(u => u.name === user.name);
-        if (!exists && user.name !== currentUserName) {
+        if (!exists && user.name !== currentUserName && !user.name.includes('@') && user.name.length < 20) {
           allEntries.push({
             name: user.name,
             points: user.points || 0,
@@ -767,7 +1023,6 @@ function renderLeaderboard(list) {
     const left = document.createElement('div'); left.className = 'left';
     const rank = document.createElement('div'); rank.className = 'rank-badge'; 
     
-    // Set unique badge for top 3
     if (idx === 0) { 
       rank.textContent = '🥇'; 
       rank.classList.add('top1'); 
@@ -784,15 +1039,14 @@ function renderLeaderboard(list) {
     const nameWrap = document.createElement('div'); nameWrap.style.display = 'flex'; nameWrap.style.alignItems = 'center'; nameWrap.style.gap = '8px';
     const name = document.createElement('div'); name.className = 'user-name'; name.textContent = u.name || 'Unknown';
 
-    // Add medals only for top 3 real users
     if (idx === 0 && !isDummy && !isCurrentUser) { 
       const icon = document.createElement('span'); icon.className = 'medal'; icon.textContent = '🏆'; nameWrap.appendChild(icon); 
     }
     else if (idx === 1 && !isDummy && !isCurrentUser) { 
-      const icon = document.createElement('span'); icon.className = 'medal'; icon.textContent = '🥈'; nameWrap.appendChild(icon); 
+      const icon = document.createElement('span'); icon.className = 'medal'; icon.textContent = ''; nameWrap.appendChild(icon); 
     }
     else if (idx === 2 && !isDummy && !isCurrentUser) { 
-      const icon = document.createElement('span'); icon.className = 'medal'; icon.textContent = '🥉'; nameWrap.appendChild(icon); 
+      const icon = document.createElement('span'); icon.className = 'medal'; icon.textContent = ' '; nameWrap.appendChild(icon); 
     }
     
     if (isDummy) {
@@ -862,6 +1116,8 @@ window.addEventListener('load', async () => {
   renderGoals(loadGoals());
   await refreshLeaderboardFromLocal();
   initSocket();
+  
+  addWeekNavigation();
 });
 
 // Add CSS for validation and cool UI
@@ -905,7 +1161,6 @@ style.textContent = `
     color: #ffffff !important;
   }
   
-  /* Rank badge styles */
   .rank-badge.top1 {
     background: linear-gradient(135deg, #ffd700, #ffb347) !important;
     color: #1a1a1a !important;
@@ -932,7 +1187,6 @@ style.textContent = `
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
   }
   
-  /* Cool validation styles */
   input:invalid {
     border-color: #ff6b6b !important;
   }
@@ -950,7 +1204,6 @@ style.textContent = `
     to { opacity: 1; transform: translateY(0); }
   }
   
-  /* Toast error styling */
   .toast.error {
     background: #ff6b6b !important;
   }
