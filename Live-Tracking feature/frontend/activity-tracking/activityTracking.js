@@ -1,5 +1,5 @@
 
-const SERVER = window.SERVER || (location.hostname === 'localhost' ? 'http://localhost:3000' : location.origin);
+const SERVER = window.SERVER || (location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://eco-tracker-pf7l.onrender.com');
 
 
 const liveIndicator = document.getElementById('live-indicator');
