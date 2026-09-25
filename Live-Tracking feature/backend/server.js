@@ -400,7 +400,7 @@ app.get('/recommendations', (req, res) => {
   });
 
   // =================== LISTEN ===================
-  server.listen(PORT, () => {
+  server.listen(PORT,'0.0.0.0', () => {
     console.log(`🔥 Server running on http://localhost:${PORT}`);
     console.log(`📧 Email ${transporter ? 'configured' : 'not configured'}`);
     console.log(`🔑 Google OAuth ${process.env.GOOGLE_CLIENT_ID ? 'configured' : 'NOT configured ⚠️'}`);

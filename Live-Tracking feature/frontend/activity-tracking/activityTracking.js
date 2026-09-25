@@ -1,8 +1,7 @@
-// activityTracking.js — updated full file
-/* Configuration */
+
 const SERVER = window.SERVER || (location.hostname === 'localhost' ? 'http://localhost:3000' : location.origin);
 
-/* DOM refs */
+
 const liveIndicator = document.getElementById('live-indicator');
 const ecoPercentEl = document.getElementById('ecoPercent');
 const gaugeArc = document.getElementById('gauge-arc');
